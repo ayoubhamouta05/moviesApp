@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.moviesapp.databinding.RowNewMoviesBinding
+import com.example.moviesapp.model.upcomingmovies.Entry
 import com.example.moviesapp.model.upcomingmovies.UpcomingMoviesData
 
 class UpcomingListAdapter : RecyclerView.Adapter<UpcomingListAdapter.ViewHolder>() {
@@ -23,19 +24,19 @@ class UpcomingListAdapter : RecyclerView.Adapter<UpcomingListAdapter.ViewHolder>
         ))
     }
 
-    private var differCallback = object : DiffUtil.ItemCallback<UpcomingMoviesData>(){
-        override fun areItemsTheSame(oldItem: UpcomingMoviesData, newItem: UpcomingMoviesData): Boolean {
-            return  oldItem.message == newItem.message
+    private var differCallback = object : DiffUtil.ItemCallback<Entry>(){
+        override fun areItemsTheSame(oldItem: Entry, newItem: Entry): Boolean {
+            return  oldItem.titleText == newItem.titleText
         }
 
-        override fun areContentsTheSame(oldItem: UpcomingMoviesData, newItem: UpcomingMoviesData): Boolean {
+        override fun areContentsTheSame(oldItem: Entry, newItem: Entry): Boolean {
             return oldItem == newItem
         }
     }
     var differ = AsyncListDiffer(this,differCallback)
 
     override fun onBindViewHolder(holder: UpcomingListAdapter.ViewHolder, position: Int) {
-        val list = differ.currentList[0].message[0].entries[position]
+        val list = differ.currentList[position]
         holder.binding.apply {
             rateStar.visibility = View.GONE
             movieRate.visibility = View.GONE
@@ -50,13 +51,19 @@ class UpcomingListAdapter : RecyclerView.Adapter<UpcomingListAdapter.ViewHolder>
                 genre += list.genres[i]
             }
             movieGenre.text = genre
+            root.setOnClickListener {
+                onItemClickListener?.let {
+                    it(list)
+                }
+            }
+
         }
     }
 
     override fun getItemCount(): Int = differ.currentList.size
 
-    private var onItemClickListener : ((UpcomingMoviesData) -> Unit)? = null
-    fun setOnItemClickListener(listener : ((UpcomingMoviesData) -> Unit)){
+    private var onItemClickListener : ((Entry) -> Unit)? = null
+    fun setOnItemClickListener(listener : ((Entry) -> Unit)){
         onItemClickListener = listener
     }
 }

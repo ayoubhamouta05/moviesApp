@@ -34,12 +34,16 @@ class MoviesCategoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-       // setupCategoryRv()
+        // setupCategoryRv()
         moviesAdapter = MoviesCategoryAdapter()
         binding.backBtn.setOnClickListener {
             findNavController().popBackStack()
         }
         moviesAdapter.setOnItemClickListener {
+            findNavController().navigate(R.id.action_moviesCategoryFragment_to_movieDetailsFragment)
+        }
+
+        upcomingListAdapter.setOnItemClickListener {
             findNavController().navigate(R.id.action_moviesCategoryFragment_to_movieDetailsFragment)
         }
 
@@ -50,13 +54,12 @@ class MoviesCategoryFragment : Fragment() {
 
     private fun setupUpcomingRv(){
 
-
         upcomingListAdapter = UpcomingListAdapter()
         binding.rvCategoryMovies.apply {
             layoutManager = GridLayoutManager(requireContext(),2)
             adapter = upcomingListAdapter
             viewModel.upcomingMovies.observe(requireActivity()){
-                upcomingListAdapter.differ.submitList(mutableListOf( it))
+                upcomingListAdapter.differ.submitList(it)
             }
 
         }

@@ -26,7 +26,7 @@ class HomeFragment : Fragment() {
     lateinit var upcomingAdapter: UpcomingAdapter
     lateinit var newMovieAdapter: NewMovieAdapter
 
-    private lateinit var viewModel : MoviesViewModel
+    private lateinit var viewModel: MoviesViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -61,24 +61,24 @@ class HomeFragment : Fragment() {
         upcomingAdapter = UpcomingAdapter()
 
         val list = arrayListOf<String>()
-        viewModel.upcomingMovies.observe(requireActivity()){
-            for(i in 0 until it.message[0].entries.size){
-                list.add(it.message[0].entries[i].imageModel.url)
-            }
-            binding.rvUpcomingMovies.apply {
-                layoutManager =
-                    LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-                adapter = upcomingAdapter
-                try {
-                    viewModel.upcomingMovies.observe(requireActivity()){
-                        upcomingAdapter.differ.submitList(list)
-                    }
 
-                } catch (ex: Exception) {
-                    Toast.makeText(requireContext(), ex.message, Toast.LENGTH_SHORT).show()
+        binding.rvUpcomingMovies.apply {
+            layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            adapter = upcomingAdapter
+            try {
+                viewModel.upcomingMovies.observe(requireActivity()) {
+                    for (element in it) {
+                        list.add(element.imageModel.url)
+                    }
+                    upcomingAdapter.differ.submitList(list)
                 }
 
+            } catch (ex: Exception) {
+                Toast.makeText(requireContext(), ex.message, Toast.LENGTH_SHORT).show()
             }
+
+
         }
 
 //        val list = arrayListOf(

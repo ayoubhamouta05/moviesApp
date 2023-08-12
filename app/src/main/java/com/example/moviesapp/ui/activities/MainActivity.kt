@@ -50,7 +50,6 @@ class MainActivity : AppCompatActivity() {
                 binding.bottomNavigation.setBackgroundResource(R.drawable._solid_bluegrey_40dp)
             }
 
-
             // Check if the selected item is different from the current destination
             if (currentDestination != menuItem.itemId) {
                 // Clear the back stack before navigating
@@ -82,12 +81,6 @@ class MainActivity : AppCompatActivity() {
 
                 // Check if the selected item is different from the current destination
                 if (currentDestination == R.id.homeFragment) {
-                    // Clear the back stack before navigating
-//                    navController.popBackStack(navController.graph.startDestinationId, false)
-//
-//                    // Navigate to the selected destination
-//
-//                    navController.popBackStack()
 
                     if (elapsedMillis < 5000) {
                         // Finish the activity

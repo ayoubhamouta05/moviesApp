@@ -131,7 +131,7 @@
                     android:textSize="22sp"/>
 
                 <TextView
-                    android:id="@+id/see_all_new_movie"
+                    android:id="@+id/see_all_top_movies"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="see All"

@@ -48,7 +48,18 @@
         android:id="@+id/movieDetailsFragment"
         android:name="com.example.moviesapp.ui.fragments.MovieDetailsFragment"
         android:label="MovieDetailsFragment"
-        tools:layout="@layout/fragment_movie_details"/>
+        tools:layout="@layout/fragment_movie_details">
+        <argument
+            android:name="movieUpcData"
+            app:argType="com.example.moviesapp.model.upcomingmovies.Entry"
+            app:nullable="true"
+            android:defaultValue="@null"/>
+        <argument
+            android:name="movieTopData"
+            app:argType="com.example.moviesapp.model.topMovies.TopMoviesData"
+            app:nullable="true"
+            android:defaultValue="@null"/>
+    </fragment>
     <fragment
         android:id="@+id/moviesCategoryFragment"
         android:name="com.example.moviesapp.ui.fragments.MoviesCategoryFragment"

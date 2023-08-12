@@ -7,4 +7,6 @@ class MoviesRepository () {
 
     suspend fun getUpcomingMovies() = RetrofitInstance.moviesApi.getUpcomingMovies()
 
+    suspend fun getTopMovies() = RetrofitInstance.topMoviesApi.getTop100Movies()
+
 }

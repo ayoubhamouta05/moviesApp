@@ -5,18 +5,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
 import android.widget.Toast
-import androidx.lifecycle.ViewModel
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.moviesapp.R
-import com.example.moviesapp.adapter.NewMovieAdapter
+import com.example.moviesapp.adapter.TopMovieAdapter
 import com.example.moviesapp.adapter.UpcomingAdapter
 import com.example.moviesapp.databinding.FragmentHomeBinding
-import com.example.moviesapp.databinding.FragmentProfileBinding
-import com.example.moviesapp.model.NewMoviesData
 import com.example.moviesapp.ui.activities.MainActivity
 import com.example.moviesapp.viewModel.MoviesViewModel
 
@@ -24,8 +19,7 @@ import com.example.moviesapp.viewModel.MoviesViewModel
 class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     lateinit var upcomingAdapter: UpcomingAdapter
-    lateinit var newMovieAdapter: NewMovieAdapter
-
+    private lateinit var topMovieAdapter: TopMovieAdapter
     private lateinit var viewModel: MoviesViewModel
 
     override fun onCreateView(
@@ -41,32 +35,55 @@ class HomeFragment : Fragment() {
         viewModel = (activity as MainActivity).viewModel
 
         setupUpcomingRv()
-        setupNewMovieRv()
+        setupTopMovieRv()
 
-        newMovieAdapter.setOnItemClickListener {
-            // todo : add fragment that show the detail of this movie
-            findNavController().navigate(R.id.action_homeFragment_to_movieDetailsFragment)
-        }
-        upcomingAdapter.setOnItemClickListener {
-            // todo : add fragment that show the detail of this movie
-            findNavController().navigate(R.id.action_homeFragment_to_movieDetailsFragment)
+        upcomingAdapter.setOnItemClickListener {upcomingMovieImg->
+            viewModel.upcomingMovies.observe(requireActivity()){
+
+                for(i in it){
+                    if(i.imageModel.url == upcomingMovieImg) {
+                        val data = Bundle().apply {
+                            putSerializable("movieUpcData", i)
+                        }
+                        findNavController().navigate(R.id.action_homeFragment_to_movieDetailsFragment,data)
+                        break
+                    }
+                }
+            }
         }
 
         binding.seeAllUpcomingMovie.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_moviesCategoryFragment)
+
         }
+
+        topMovieAdapter.setOnItemClickListener {
+            val data = Bundle().apply {
+                putSerializable(
+                    "movieTopData",it
+                )
+            }
+
+            findNavController().navigate(R.id.action_homeFragment_to_movieDetailsFragment , data)
+        }
+
+        binding.seeAllTopMovies.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_moviesCategoryFragment)
+        }
+
     }
 
     private fun setupUpcomingRv() {
         upcomingAdapter = UpcomingAdapter()
 
-        val list = arrayListOf<String>()
+        //todo : fix glide issue
 
         binding.rvUpcomingMovies.apply {
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             adapter = upcomingAdapter
             try {
+                val list = arrayListOf<String>()
                 viewModel.upcomingMovies.observe(requireActivity()) {
                     for (element in it) {
                         list.add(element.imageModel.url)
@@ -78,72 +95,29 @@ class HomeFragment : Fragment() {
                 Toast.makeText(requireContext(), ex.message, Toast.LENGTH_SHORT).show()
             }
 
-
         }
-
-//        val list = arrayListOf(
-//            "https://media.istockphoto.com/id/847321716/fr/photo/macro-a-tir%C3%A9-de-l%C3%A9cran-de-lordinateur-avec-la-barre-dadresse-de-http-et-navigateur-web.webp?b=1&s=612x612&w=0&k=20&c=E8X_zwBZ-pFjMmah-in71Z_kqTmogNhDsPjpXrJow5g=",
-//            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-//            "https://media.istockphoto.com/id/847321716/fr/photo/macro-a-tir%C3%A9-de-l%C3%A9cran-de-lordinateur-avec-la-barre-dadresse-de-http-et-navigateur-web.webp?b=1&s=612x612&w=0&k=20&c=E8X_zwBZ-pFjMmah-in71Z_kqTmogNhDsPjpXrJow5g=",
-//            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-//            "https://media.istockphoto.com/id/847321716/fr/photo/macro-a-tir%C3%A9-de-l%C3%A9cran-de-lordinateur-avec-la-barre-dadresse-de-http-et-navigateur-web.webp?b=1&s=612x612&w=0&k=20&c=E8X_zwBZ-pFjMmah-in71Z_kqTmogNhDsPjpXrJow5g=",
-//            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-//            "https://media.istockphoto.com/id/847321716/fr/photo/macro-a-tir%C3%A9-de-l%C3%A9cran-de-lordinateur-avec-la-barre-dadresse-de-http-et-navigateur-web.webp?b=1&s=612x612&w=0&k=20&c=E8X_zwBZ-pFjMmah-in71Z_kqTmogNhDsPjpXrJow5g=",
-//            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-//            "https://media.istockphoto.com/id/847321716/fr/photo/macro-a-tir%C3%A9-de-l%C3%A9cran-de-lordinateur-avec-la-barre-dadresse-de-http-et-navigateur-web.webp?b=1&s=612x612&w=0&k=20&c=E8X_zwBZ-pFjMmah-in71Z_kqTmogNhDsPjpXrJow5g=",
-//            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc="
-//        )
 
     }
 
-    private fun setupNewMovieRv() {
-        newMovieAdapter = NewMovieAdapter()
-        val list = arrayListOf(
-            NewMoviesData(
-                "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-                "NewsPaper",
-                arrayListOf("drama", "action"),
-                "7.8"
-            ),
-            NewMoviesData(
-                "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-                "NewsPaper",
-                arrayListOf("drama", "action", "Comedy"),
-                "7.8"
-            ),
-            NewMoviesData(
-                "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-                "NewsPaper",
-                arrayListOf("drama", "action"),
-                "7.8"
-            ),
-            NewMoviesData(
-                "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-                "NewsPaper",
-                arrayListOf("drama", "action"),
-                "7.8"
-            ),
-            NewMoviesData(
-                "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-                "NewsPaper",
-                arrayListOf("drama", "action"),
-                "7.8"
-            ),
-            NewMoviesData(
-                "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-                "NewsPaper",
-                arrayListOf("drama", "action"),
-                "7.8"
-            ),
+    private fun setupTopMovieRv() {
 
-            )
-        // todo : set it in try catch
+        topMovieAdapter = TopMovieAdapter()
+
         binding.rvNewMovies.apply {
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-            adapter = newMovieAdapter
-            newMovieAdapter.differ.submitList(list)
+            adapter = topMovieAdapter
+            try {
+                viewModel.top100Movies.observe(requireActivity()) {
+                    topMovieAdapter.differ.submitList(it)
+                }
+
+            } catch (ex: Exception) {
+                Toast.makeText(requireContext(), ex.message, Toast.LENGTH_SHORT).show()
+            }
+
         }
     }
+
 
 }

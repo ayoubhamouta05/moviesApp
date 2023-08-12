@@ -36,6 +36,7 @@ class MoviesCategoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         // setupCategoryRv()
         moviesAdapter = MoviesCategoryAdapter()
+        upcomingListAdapter = UpcomingListAdapter()
         binding.backBtn.setOnClickListener {
             findNavController().popBackStack()
         }
@@ -67,7 +68,7 @@ class MoviesCategoryFragment : Fragment() {
 
 
     private fun setupCategoryRv(){
-        var list = arrayListOf(
+        val list = arrayListOf(
             NewMoviesData(
                 "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
                 "NewsPaper",

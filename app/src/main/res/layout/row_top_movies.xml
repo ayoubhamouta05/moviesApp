@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="150dp"
-    android:layout_height="wrap_content"
+    android:layout_height="255dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="10dp"
     android:layout_marginEnd="10dp"
@@ -29,6 +29,7 @@
             android:text="Movie Title Here"
             android:textStyle="bold"
             android:textSize="16sp"
+            android:maxLines="2"
             android:textColor="@color/white"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -41,6 +42,7 @@
             android:textAlignment="textStart"
             android:textColor="@color/normal_text_color"
             android:text="Action/drama"
+            android:maxLines="1"
             app:layout_constraintStart_toStartOf="@id/movie_Name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/movie_Name"/>
@@ -49,11 +51,9 @@
             android:layout_width="22dp"
             android:layout_height="22dp"
             android:src="@drawable/ic_star"
-            android:layout_marginTop="7dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="7dp"
             app:layout_constraintStart_toStartOf="@id/movie_genre"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/movie_genre" />
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <TextView
             android:id="@+id/movie_rate"

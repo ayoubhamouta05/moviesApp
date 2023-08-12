@@ -7,16 +7,15 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.moviesapp.databinding.RowNewMoviesBinding
+import com.example.moviesapp.databinding.RowTopMoviesBinding
 import com.example.moviesapp.model.upcomingmovies.Entry
-import com.example.moviesapp.model.upcomingmovies.UpcomingMoviesData
 
 class UpcomingListAdapter : RecyclerView.Adapter<UpcomingListAdapter.ViewHolder>() {
-    inner class ViewHolder(var binding: RowNewMoviesBinding) : RecyclerView.ViewHolder(binding.root)
+    inner class ViewHolder(var binding: RowTopMoviesBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UpcomingListAdapter.ViewHolder {
         return ViewHolder(
-            RowNewMoviesBinding.inflate(
+            RowTopMoviesBinding.inflate(
             LayoutInflater.from(
                 parent.context),
             parent,

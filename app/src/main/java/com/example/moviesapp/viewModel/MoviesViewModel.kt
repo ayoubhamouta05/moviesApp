@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.moviesapp.model.topMovies.TopMoviesData
 import com.example.moviesapp.model.upcomingmovies.Entry
 import com.example.moviesapp.model.upcomingmovies.UpcomingMoviesData
 import com.example.moviesapp.repository.MoviesRepository
@@ -16,9 +17,12 @@ private val moviesRepo : MoviesRepository
 
     init {
         getUpcomingMovies()
+        getTop100Movies()
     }
 
     var upcomingMovies  = MutableLiveData<List<Entry>>()
+
+    var top100Movies = MutableLiveData<List<TopMoviesData>>()
 
     private fun getUpcomingMovies() = viewModelScope.launch {
         try {
@@ -35,6 +39,24 @@ private val moviesRepo : MoviesRepository
         }catch (ex : Exception){
             Log.d("UpcomingMovies","exception : ${ex.message}")
         }
+
     }
+
+
+    private fun getTop100Movies() = viewModelScope.launch {
+        try {
+            var response = moviesRepo.getTopMovies()
+            if (response.isSuccessful){
+                top100Movies.postValue(response.body())
+                Log.d("TopMovies", response.body()!!.size.toString())
+            }else{
+                Log.d("TopMovies","failed : ${response.errorBody()}")
+            }
+        }catch (ex : Exception){
+            Log.d("TopMovies","exception : ${ex.message}")
+        }
+    }
+
+
 
 }

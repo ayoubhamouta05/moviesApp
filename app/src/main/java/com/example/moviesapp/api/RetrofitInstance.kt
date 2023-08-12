@@ -4,13 +4,26 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitInstance {
-    private val retrofit by lazy {
+    private val retrofitMovies by lazy {
         Retrofit.Builder()
             .baseUrl("https://imdb188.p.rapidapi.com/api/v1/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
+
     val moviesApi by lazy {
-        retrofit.create(MoviesAPI::class.java)
+        retrofitMovies.create(MoviesAPI::class.java)
     }
+
+    private val retrofitTopMovies by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://imdb-top-100-movies.p.rapidapi.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    val topMoviesApi by lazy {
+        retrofitTopMovies.create(TopMoviesAPI::class.java)
+    }
+
 }

@@ -43,31 +43,35 @@ class CategoryFragment : Fragment() {
         }
 
     }
-    private fun setupRecyclerView(){
-        var list = arrayListOf(CategoryData(
-            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-        "Action"),
+
+    private fun setupRecyclerView() {
+        val list = arrayListOf(
             CategoryData(
-                "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-                "Action"),
+                R.drawable.action_category_img, "Action"
+            ),
             CategoryData(
-                "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-                "Action"),
+                R.drawable.adventure_category_img, "Adventure"
+            ),
             CategoryData(
-                "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-                "Action"),
+                R.drawable.animation_category_img, "Animation"
+            ),
             CategoryData(
-                "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-                "Action"),
+                R.drawable.biography_category_img, "Biography"
+            ),
             CategoryData(
-                "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-                "Action"),
+                R.drawable.comedy_category_img, "Comedy"
+            ),
             CategoryData(
-                "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-                "Action"),
+                R.drawable.drame_category_img, "Drama"
+            ),
             CategoryData(
-                "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-                "Action"),)
+                R.drawable.family_category_img, "Family"
+            ),
+            CategoryData(
+                R.drawable.fantazy_category_img, "Fantasy"
+            ),
+        )
+
         categoryAdapter = CategoryAdapter()
         binding.rvCategory.apply {
             layoutManager = LinearLayoutManager(requireContext())

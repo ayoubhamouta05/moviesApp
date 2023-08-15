@@ -67,7 +67,6 @@ class ProfileFragment : Fragment() {
         binding.seeAllFavorite.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_favouriteFragment)
         }
-
         binding.seeAllRecently.setOnClickListener {
 
             val data = Bundle().apply {
@@ -76,6 +75,9 @@ class ProfileFragment : Fragment() {
 
             findNavController().navigate(R.id.action_profileFragment_to_moviesCategoryFragment,data)
         }
+        binding.moviesNumber.text = viewModel.top100Movies.value?.size.toString()
+        binding.favouriteNumber.text = viewModel.favoriteMovies.value?.size.toString()
+        binding.watchListNumber.text = viewModel.recentlyWatched.value?.size.toString()
 
 
     }

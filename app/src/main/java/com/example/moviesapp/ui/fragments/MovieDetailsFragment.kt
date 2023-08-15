@@ -91,60 +91,40 @@ class MovieDetailsFragment : Fragment() {
         }
 
         binding.shareBtn.setOnClickListener {
-            val bitmap = (binding.movieSmallImg.drawable as BitmapDrawable).bitmap
-            val path = MediaStore.Images.Media.insertImage(requireActivity().contentResolver, bitmap, "${binding.movieName}", null)
-            val uri = Uri.parse(path)
+            shareMovie()
+        }
 
-            val shareIntent = Intent(Intent.ACTION_SEND)
-            shareIntent.type = "image/*"
-
-// Set the text first
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "Name: ${binding.movieName.text}\nDescription: ${binding.moviesDescription.text}")
-
-// Set the image
-            shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
-
-// Start the chooser intent
-            startActivity(Intent.createChooser(shareIntent, "Share Movie"))
-
-
+        binding.downloadBtn.setOnClickListener {
+            Toast.makeText(requireContext(), "This feature is not currently available", Toast.LENGTH_SHORT).show()
         }
 
 
     }
 
+    private fun shareMovie(){
+        var textInSmall = ""
+        for (i in binding.movieName.text.toString()){
+            textInSmall+=i.lowercaseChar()
+        }
+
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, "Watch This Amazing Movie")
+            putExtra(Intent.EXTRA_TEXT, "https://watch.plex.tv/movie/${textInSmall.replace(" ","-")}" )
+        }
+
+        startActivity(intent)
+    }
+
     private fun checkIfIsWatched(): Boolean {
         val currentList = viewModel.recentlyWatched.value ?: mutableListOf()
-        var done = false
-        for (i in currentList) {
-            Glide.with(requireContext()).asBitmap().load(i).into(
-                object : CustomTarget<Bitmap>(){
-                    override fun onResourceReady(
-                        resource: Bitmap,
-                        transition: Transition<in Bitmap>?
-                    ) {
-                        val imageViewDrawable = binding.movieSmallImg.drawable
-                        if(imageViewDrawable is BitmapDrawable){
-                            val imageViewBitmap = imageViewDrawable.bitmap
-                            if (resource.sameAs(imageViewBitmap)) {
-                                done = true
-                            } else {
-                                Log.d("MovieDetailsFragment","$resource  != $imageViewBitmap" )
-                            }
-                        }
-                    }
-                    override fun onLoadCleared(placeholder: Drawable?) {
-                        Toast.makeText(requireContext(), "Error occurred ... Please try again and check you connection", Toast.LENGTH_SHORT).show()
-                        findNavController().popBackStack()
-                    }
-
-                }
-            )
-
-            if (done){
-                return true
+        val currentListMovie = viewModel.top100Movies.value ?: mutableListOf()
+        for (i in currentListMovie){
+                if(binding.movieName.text == i.title && binding.moviesDescription.text == i.description ){
+                    if(currentList.contains(i.image))
+                        return true
             }
-
         }
         return false
     }
@@ -386,7 +366,6 @@ class MovieDetailsFragment : Fragment() {
                 movieDetailsFragmentArgs.movieTopData!!.apply {
                     try {
                         currentList.add(this.image)
-
                     } catch (ex: Exception) {
                         Log.d("MovieDetailsFragment", ex.message.toString())
                     }
@@ -413,39 +392,46 @@ class MovieDetailsFragment : Fragment() {
             }
         } else {
             binding.addToWatchedImg.setImageResource(R.drawable.ic_add)
-            for (i in currentList) {
-                var done = false
-                Glide.with(requireContext()).asBitmap().load(i).into(
-                    object : CustomTarget<Bitmap>(){
-                        override fun onResourceReady(
-                            resource: Bitmap,
-                            transition: Transition<in Bitmap>?
-                        ) {
-                            val imageViewDrawable = binding.movieSmallImg.drawable
-                            if(imageViewDrawable is BitmapDrawable){
-                                val imageViewBitmap = imageViewDrawable.bitmap
-                                if (resource.sameAs(imageViewBitmap)) {
-                                    currentList.remove(i)
-                                    done = true
-                                    Log.d("MovieDetailsFragment","$i removed  :: done !!" )
-                                } else {
-                                    Log.d("MovieDetailsFragment","$resource  != $imageViewBitmap" )
-                                }
-                            }
-                        }
-
-                        override fun onLoadCleared(placeholder: Drawable?) {
-                            binding.addToWatchedImg.setImageResource(R.drawable.ic_done)
-                            isWatched = true
-                            Toast.makeText(requireContext(), "failed to delete from Recently watched please try again", Toast.LENGTH_SHORT).show()
-                        }
-
-                    }
-                )
-                if (done){
-                    break
+            val currentListMovie = viewModel.top100Movies.value ?: mutableListOf()
+            for (i in currentListMovie){
+                if(binding.movieName.text == i.title && binding.moviesDescription.text == i.description ){
+                    currentList.remove(i.image)
                 }
             }
+
+//            for (i in currentList) {
+//                var done = false
+//                Glide.with(requireContext()).asBitmap().load(i).into(
+//                    object : CustomTarget<Bitmap>(){
+//                        override fun onResourceReady(
+//                            resource: Bitmap,
+//                            transition: Transition<in Bitmap>?
+//                        ) {
+//                            val imageViewDrawable = binding.movieSmallImg.drawable
+//                            if(imageViewDrawable is BitmapDrawable){
+//                                val imageViewBitmap = imageViewDrawable.bitmap
+//                                if (resource.sameAs(imageViewBitmap)) {
+//                                    currentList.remove(i)
+//                                    done = true
+//                                    Log.d("MovieDetailsFragment","$i removed  :: done !!" )
+//                                } else {
+//                                    Log.d("MovieDetailsFragment","$resource  != $imageViewBitmap" )
+//                                }
+//                            }
+//                        }
+//
+//                        override fun onLoadCleared(placeholder: Drawable?) {
+//                            binding.addToWatchedImg.setImageResource(R.drawable.ic_done)
+//                            isWatched = true
+//                            Toast.makeText(requireContext(), "failed to delete from Recently watched please try again", Toast.LENGTH_SHORT).show()
+//                        }
+//
+//                    }
+//                )
+//                if (done){
+//                    break
+//                }
+//            }
         }
         viewModel.recentlyWatched.postValue(currentList)
 

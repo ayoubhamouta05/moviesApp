@@ -7,6 +7,7 @@ import android.widget.Toast
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.core.graphics.green
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -46,8 +47,10 @@ class MainActivity : AppCompatActivity() {
 
             if(menuItem.itemId == R.id.profileFragment){
                 binding.bottomNavigation.setBackgroundResource(R.color.black)
+                menuItem.itemId.green
             }else{
                 binding.bottomNavigation.setBackgroundResource(R.drawable._solid_bluegrey_40dp)
+                menuItem.itemId.green
             }
 
             // Check if the selected item is different from the current destination

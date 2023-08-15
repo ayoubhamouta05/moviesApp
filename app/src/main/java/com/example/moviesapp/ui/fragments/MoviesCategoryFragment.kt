@@ -129,7 +129,6 @@ class MoviesCategoryFragment : Fragment() {
                         }
                     }
                 }
-                Toast.makeText(requireContext(), "${dataList.size}", Toast.LENGTH_SHORT).show()
                 categoryListAdapter.differRecently.submitList(dataList)
              }else{
                 viewModel.moviesOfCategory.observe(requireActivity()){

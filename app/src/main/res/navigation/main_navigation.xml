@@ -43,6 +43,12 @@
         <action
             android:id="@+id/action_profileFragment_to_movieDetailsFragment"
             app:destination="@id/movieDetailsFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_favouriteFragment"
+            app:destination="@id/favouriteFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_moviesCategoryFragment"
+            app:destination="@id/moviesCategoryFragment" />
     </fragment>
     <fragment
         android:id="@+id/movieDetailsFragment"
@@ -59,6 +65,22 @@
             app:argType="com.example.moviesapp.model.topMovies.TopMoviesData"
             app:nullable="true"
             android:defaultValue="@null"/>
+        <argument
+            android:name="movieOfCategory"
+            app:argType="com.example.moviesapp.model.movieOfCategory.Result"
+            app:nullable="true"
+            android:defaultValue="@null"/>
+        <action
+            android:id="@+id/action_movieDetailsFragment_self"
+            app:destination="@id/movieDetailsFragment" />
+        <argument
+            android:name="movieFavoriteData"
+            app:argType="com.example.moviesapp.model.favorite.FavoriteData"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_movieDetailsFragment_to_moviesCategoryFragment"
+            app:destination="@id/moviesCategoryFragment" />
     </fragment>
     <fragment
         android:id="@+id/moviesCategoryFragment"
@@ -68,5 +90,8 @@
         <action
             android:id="@+id/action_moviesCategoryFragment_to_movieDetailsFragment"
             app:destination="@id/movieDetailsFragment" />
+        <argument
+            android:name="dataType"
+            app:argType="string" />
     </fragment>
 </navigation>

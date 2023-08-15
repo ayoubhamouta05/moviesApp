@@ -7,8 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.moviesapp.databinding.RowCategoryBinding
-import com.example.moviesapp.model.CategoryData
-import com.example.moviesapp.model.NewMoviesData
+import com.example.moviesapp.model.category.CategoryData
 
 class CategoryAdapter : RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
     inner class ViewHolder(var binding: RowCategoryBinding) :

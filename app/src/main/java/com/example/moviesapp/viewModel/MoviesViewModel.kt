@@ -5,58 +5,130 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.moviesapp.model.favorite.FavoriteData
+import com.example.moviesapp.model.movieOfCategory.Result
 import com.example.moviesapp.model.topMovies.TopMoviesData
 import com.example.moviesapp.model.upcomingmovies.Entry
-import com.example.moviesapp.model.upcomingmovies.UpcomingMoviesData
 import com.example.moviesapp.repository.MoviesRepository
 import kotlinx.coroutines.launch
 
-class MoviesViewModel(app:Application,
-private val moviesRepo : MoviesRepository
-) : AndroidViewModel(app){
+class MoviesViewModel(
+    app: Application,
+    private val moviesRepo: MoviesRepository
+) : AndroidViewModel(app) {
+
+    var upcomingMovies = MutableLiveData<List<Entry>>()
+
+    var top100Movies = MutableLiveData<List<TopMoviesData>>()
+
+    var moviesOfCategory = MutableLiveData<List<Result>>()
+
+    var favoriteMovies = MutableLiveData(mutableListOf<FavoriteData>())
+
+    var recentlyWatched = MutableLiveData(mutableListOf<String>())
+
+    var loadingUpcomingProgressBar = MutableLiveData(false)
+    var loadingTopProgressBar = MutableLiveData(false)
+    var loadingCategoryProgressBar = MutableLiveData(false)
 
     init {
         getUpcomingMovies()
         getTop100Movies()
     }
-
-    var upcomingMovies  = MutableLiveData<List<Entry>>()
-
-    var top100Movies = MutableLiveData<List<TopMoviesData>>()
-
     private fun getUpcomingMovies() = viewModelScope.launch {
+
         try {
+            loadingUpcomingProgressBar.postValue(true)
             val response = moviesRepo.getUpcomingMovies()
-            if (response.isSuccessful){
+            if (response.isSuccessful) {
                 upcomingMovies.postValue(response.body()?.let {
                     it.message[0].entries
                     //todo: if the entries list size is less than 5 pass to the message[1] and so on
                 })
-                Log.d("UpcomingMovies", response.body()!!.message[0].entries.size.toString())
-            }else{
-                Log.d("UpcomingMovies","failed : ${response.errorBody()}")
+
+                loadingUpcomingProgressBar.postValue(false)
+            } else {
+                Log.d("UpcomingMovies", "failed : ${response.errorBody()}")
+                // todo : handle the failed response
+
+                loadingUpcomingProgressBar.postValue(false)
             }
-        }catch (ex : Exception){
-            Log.d("UpcomingMovies","exception : ${ex.message}")
+        } catch (ex: Exception) {
+            Log.d("UpcomingMovies", "exception : ${ex.message}")
+            loadingUpcomingProgressBar.postValue(false)
         }
 
     }
-
 
     private fun getTop100Movies() = viewModelScope.launch {
         try {
-            var response = moviesRepo.getTopMovies()
-            if (response.isSuccessful){
+            loadingTopProgressBar.postValue(true)
+            val response = moviesRepo.getTopMovies()
+            if (response.isSuccessful) {
                 top100Movies.postValue(response.body())
                 Log.d("TopMovies", response.body()!!.size.toString())
-            }else{
-                Log.d("TopMovies","failed : ${response.errorBody()}")
+                loadingTopProgressBar.postValue(false)
+            } else {
+                //todo : handel the failed response
+                loadingTopProgressBar.postValue(false)
             }
-        }catch (ex : Exception){
-            Log.d("TopMovies","exception : ${ex.message}")
+        } catch (ex: Exception) {
+            Log.d("TopMovies", "exception : ${ex.message}")
+            loadingTopProgressBar.postValue(false)
         }
     }
 
+    fun getMoviesWithCategory(category: String) = viewModelScope.launch {
+        var id = 28
+        when (category) {
+            "Action" -> {
+                id = 28
+            }
+
+            "Adventure" -> {
+                id = 12
+            }
+
+            "Animation" -> {
+                id = 16
+            }
+
+            "Documentary" -> {
+                id = 99
+            }
+
+            "Comedy" -> {
+                id = 35
+            }
+
+            "Drama" -> {
+                id = 18
+            }
+
+            "Family" -> {
+                id = 10751
+            }
+
+            "Fantasy" -> {
+                id = 14
+            }
+        }
+        try {
+            loadingCategoryProgressBar.postValue(true)
+            val response = moviesRepo.getMoviesWithCategory(id)
+            if (response.isSuccessful) {
+                moviesOfCategory.postValue(response.body()!!.results)
+                Log.d("MoviesWithCategory", response.body()!!.results.size.toString())
+                loadingCategoryProgressBar.postValue(false)
+            } else {
+                // todo : handle the failed response
+                loadingCategoryProgressBar.postValue(false)
+            }
+        } catch (ex: Exception) {
+            Log.d("MoviesWithCategory", "exception : ${ex.message}")
+            loadingCategoryProgressBar.postValue(false)
+        }
+    }
 
 
 }

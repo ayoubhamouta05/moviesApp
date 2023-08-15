@@ -11,8 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.moviesapp.R
 import com.example.moviesapp.adapter.CategoryAdapter
 import com.example.moviesapp.databinding.FragmentCategoryBinding
-import com.example.moviesapp.databinding.FragmentFavouriteBinding
-import com.example.moviesapp.model.CategoryData
+import com.example.moviesapp.model.category.CategoryData
 
 
 class CategoryFragment : Fragment() {
@@ -35,8 +34,12 @@ class CategoryFragment : Fragment() {
         }
 
         categoryAdapter.setOnItemClickListener {
+
             // todo : add fragment to show the list of all movie of that category name
-            findNavController().navigate(R.id.action_categoryFragment_to_moviesCategoryFragment)
+            val data = Bundle().apply {
+                putString("dataType",it)
+            }
+            findNavController().navigate(R.id.action_categoryFragment_to_moviesCategoryFragment,data)
         }
         binding.backBtn.setOnClickListener {
             findNavController().popBackStack()
@@ -56,7 +59,7 @@ class CategoryFragment : Fragment() {
                 R.drawable.animation_category_img, "Animation"
             ),
             CategoryData(
-                R.drawable.biography_category_img, "Biography"
+                R.drawable.documentary_category_img, "Documentary"
             ),
             CategoryData(
                 R.drawable.comedy_category_img, "Comedy"

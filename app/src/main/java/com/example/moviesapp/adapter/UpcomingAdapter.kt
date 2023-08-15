@@ -36,9 +36,9 @@ class UpcomingAdapter : RecyclerView.Adapter<UpcomingAdapter.ViewHolder>() {
 
     override fun onBindViewHolder(holder: UpcomingAdapter.ViewHolder, position: Int) {
         holder.binding.apply {
-            Glide.with(this.root).load(differ.currentList[position]).into(movieImg)
+            Glide.with(root).load(differ.currentList[position]).into(movieImg)
 
-            movieImg.setOnClickListener {
+            root.setOnClickListener {
                 onItemClickListener?.let {
                     it(differ.currentList[position])
                 }

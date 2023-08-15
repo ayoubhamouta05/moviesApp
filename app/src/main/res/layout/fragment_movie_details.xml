@@ -64,22 +64,23 @@
             android:id="@+id/card_view"
             android:layout_width="70dp"
             android:layout_height="70dp"
-            app:cardCornerRadius="300dp"
-            android:elevation="12dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/red"
             android:backgroundTint="@color/red"
-            android:layout_margin="50dp"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:elevation="12dp"
+            app:cardBackgroundColor="@color/red"
+            app:cardCornerRadius="300dp"
+            app:cardElevation="4dp"
             app:layout_constraintBottom_toBottomOf="@id/movie_small_img_cv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/movie_small_img_cv"
             app:layout_constraintTop_toTopOf="@id/movie_small_img_cv">
+
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:elevation="30dp"
                 android:padding="10dp"
-                android:src="@drawable/ic_arrow_play"
                 android:scaleType="centerCrop"
-                android:elevation="30dp"/>
+                android:src="@drawable/ic_arrow_play" />
 
         </androidx.cardview.widget.CardView>
 
@@ -123,6 +124,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:gravity="center">
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/add_to_watched_cv"
                     android:layout_width="45dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -130,6 +132,7 @@
                     app:cardCornerRadius="10dp"
                     android:backgroundTint="@color/blueGrey">
                     <ImageView
+                        android:id="@+id/add_to_watched_img"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:padding="20dp"
@@ -138,6 +141,7 @@
                         app:tint="@color/icon_grey" />
                 </androidx.cardview.widget.CardView>
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/heart_cv"
                     android:layout_width="45dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -145,6 +149,7 @@
                     app:cardCornerRadius="10dp"
                     android:backgroundTint="@color/blueGrey">
                     <ImageView
+                        android:id="@+id/heart_img"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:padding="17dp"
@@ -153,6 +158,7 @@
                         app:tint="@color/icon_grey" />
                 </androidx.cardview.widget.CardView>
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/download_btn"
                     android:layout_width="45dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -168,6 +174,7 @@
                         app:tint="@color/icon_grey" />
                 </androidx.cardview.widget.CardView>
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/share_btn"
                     android:layout_width="45dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -228,6 +235,7 @@
                         android:textSize="22sp"/>
 
                     <TextView
+                        android:id="@+id/see_all_recommended"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="see All"

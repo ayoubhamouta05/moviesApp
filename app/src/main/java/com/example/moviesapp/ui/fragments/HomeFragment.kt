@@ -34,12 +34,24 @@ class HomeFragment : Fragment() {
 
         viewModel = (activity as MainActivity).viewModel
 
+        viewModel.loadingUpcomingProgressBar.observe(requireActivity()){
+            if (it)
+                binding.upcomingProgressBar.visibility = View.VISIBLE
+            else
+                binding.upcomingProgressBar.visibility = View.GONE
+        }
+        viewModel.loadingTopProgressBar.observe(requireActivity()){
+            if (it)
+                binding.topProgressBar.visibility = View.VISIBLE
+            else
+                binding.topProgressBar.visibility = View.GONE
+        }
+
         setupUpcomingRv()
         setupTopMovieRv()
 
         upcomingAdapter.setOnItemClickListener {upcomingMovieImg->
             viewModel.upcomingMovies.observe(requireActivity()){
-
                 for(i in it){
                     if(i.imageModel.url == upcomingMovieImg) {
                         val data = Bundle().apply {
@@ -52,31 +64,35 @@ class HomeFragment : Fragment() {
             }
         }
 
-        binding.seeAllUpcomingMovie.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_moviesCategoryFragment)
-
-        }
-
         topMovieAdapter.setOnItemClickListener {
             val data = Bundle().apply {
                 putSerializable(
                     "movieTopData",it
                 )
             }
-
             findNavController().navigate(R.id.action_homeFragment_to_movieDetailsFragment , data)
         }
 
+        binding.seeAllUpcomingMovie.setOnClickListener {
+
+            val bundle = Bundle().apply {
+                putString("dataType","Upcoming")
+            }
+            findNavController().navigate(R.id.action_homeFragment_to_moviesCategoryFragment,bundle)
+
+        }
+
         binding.seeAllTopMovies.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_moviesCategoryFragment)
+            val bundle = Bundle().apply {
+                putString("dataType","Top")
+            }
+            findNavController().navigate(R.id.action_homeFragment_to_moviesCategoryFragment,bundle)
         }
 
     }
 
     private fun setupUpcomingRv() {
         upcomingAdapter = UpcomingAdapter()
-
-        //todo : fix glide issue
 
         binding.rvUpcomingMovies.apply {
             layoutManager =

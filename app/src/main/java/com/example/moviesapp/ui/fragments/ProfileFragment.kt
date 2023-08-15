@@ -12,12 +12,17 @@ import com.example.moviesapp.R
 import com.example.moviesapp.adapter.ProfileAdapter
 import com.example.moviesapp.adapter.UpcomingAdapter
 import com.example.moviesapp.databinding.FragmentProfileBinding
+import com.example.moviesapp.model.favorite.FavoriteData
+import com.example.moviesapp.model.topMovies.TopMoviesData
+import com.example.moviesapp.ui.activities.MainActivity
+import com.example.moviesapp.viewModel.MoviesViewModel
 
 
 class ProfileFragment : Fragment() {
     private lateinit var binding: FragmentProfileBinding
     private lateinit var recentlyAdapter : ProfileAdapter
     private lateinit var favoritesAdapter : ProfileAdapter
+    private lateinit var viewModel : MoviesViewModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -29,40 +34,71 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = (activity as MainActivity).viewModel
         // todo : add button to swipe up the user information and do some animation
         setupRecentlyRv()
         setupFavoritesRv()
 
         recentlyAdapter.setOnItemClickListener {
-            findNavController().navigate(R.id.action_profileFragment_to_movieDetailsFragment)
+            val currentList = viewModel.top100Movies.value ?: mutableListOf()
+            for (i in currentList){
+                if (i.image == it){
+                    val data = Bundle().apply {
+                        putSerializable("movieTopData",i)
+                    }
+                    findNavController().navigate(R.id.action_profileFragment_to_movieDetailsFragment,data)
+                }
+            }
         }
         favoritesAdapter.setOnItemClickListener {
-            findNavController().navigate(R.id.action_profileFragment_to_movieDetailsFragment)
+            val currentList = viewModel.favoriteMovies.value ?: mutableListOf()
+            var movie : FavoriteData? = null
+            for (i in currentList){
+                if (i.movieImg == it){
+                    movie = i
+                    break
+                }
+            }
+            val data = Bundle().apply {
+                putSerializable("movieFavoriteData",movie)
+            }
+            findNavController().navigate(R.id.action_profileFragment_to_movieDetailsFragment,data)
         }
+        binding.seeAllFavorite.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_favouriteFragment)
+        }
+
+        binding.seeAllRecently.setOnClickListener {
+
+            val data = Bundle().apply {
+                putString("dataType","watched")
+            }
+
+            findNavController().navigate(R.id.action_profileFragment_to_moviesCategoryFragment,data)
+        }
+
 
     }
 
     private fun setupRecentlyRv(){
         recentlyAdapter = ProfileAdapter()
-
-        val list = arrayListOf(
-            "https://media.istockphoto.com/id/847321716/fr/photo/macro-a-tir%C3%A9-de-l%C3%A9cran-de-lordinateur-avec-la-barre-dadresse-de-http-et-navigateur-web.webp?b=1&s=612x612&w=0&k=20&c=E8X_zwBZ-pFjMmah-in71Z_kqTmogNhDsPjpXrJow5g=",
-            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-            "https://media.istockphoto.com/id/847321716/fr/photo/macro-a-tir%C3%A9-de-l%C3%A9cran-de-lordinateur-avec-la-barre-dadresse-de-http-et-navigateur-web.webp?b=1&s=612x612&w=0&k=20&c=E8X_zwBZ-pFjMmah-in71Z_kqTmogNhDsPjpXrJow5g=",
-            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-            "https://media.istockphoto.com/id/847321716/fr/photo/macro-a-tir%C3%A9-de-l%C3%A9cran-de-lordinateur-avec-la-barre-dadresse-de-http-et-navigateur-web.webp?b=1&s=612x612&w=0&k=20&c=E8X_zwBZ-pFjMmah-in71Z_kqTmogNhDsPjpXrJow5g=",
-            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-            "https://media.istockphoto.com/id/847321716/fr/photo/macro-a-tir%C3%A9-de-l%C3%A9cran-de-lordinateur-avec-la-barre-dadresse-de-http-et-navigateur-web.webp?b=1&s=612x612&w=0&k=20&c=E8X_zwBZ-pFjMmah-in71Z_kqTmogNhDsPjpXrJow5g=",
-            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-            "https://media.istockphoto.com/id/847321716/fr/photo/macro-a-tir%C3%A9-de-l%C3%A9cran-de-lordinateur-avec-la-barre-dadresse-de-http-et-navigateur-web.webp?b=1&s=612x612&w=0&k=20&c=E8X_zwBZ-pFjMmah-in71Z_kqTmogNhDsPjpXrJow5g=",
-            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc="
-        )
         binding.rvRecentlyWatched.apply {
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             adapter = recentlyAdapter
             try {
-                recentlyAdapter.differ.submitList(list)
+                viewModel.recentlyWatched.observe(requireActivity()){
+                    if (it.isEmpty()){
+                        binding.rvRecentlyWatched.visibility = View.GONE
+                        binding.seeAllRecently.visibility = View.GONE
+                        binding.emptyRecentlyTv.visibility = View.VISIBLE
+                    }else{
+                        binding.rvRecentlyWatched.visibility = View.VISIBLE
+                        binding.seeAllRecently.visibility = View.VISIBLE
+                        binding.emptyRecentlyTv.visibility = View.GONE
+                        recentlyAdapter.differ.submitList(it)
+                    }
+                }
             } catch (ex: Exception) {
                 Toast.makeText(requireContext(), ex.message, Toast.LENGTH_SHORT).show()
             }
@@ -72,24 +108,28 @@ class ProfileFragment : Fragment() {
     private fun setupFavoritesRv(){
         favoritesAdapter = ProfileAdapter()
 
-        val list = arrayListOf(
-            "https://media.istockphoto.com/id/847321716/fr/photo/macro-a-tir%C3%A9-de-l%C3%A9cran-de-lordinateur-avec-la-barre-dadresse-de-http-et-navigateur-web.webp?b=1&s=612x612&w=0&k=20&c=E8X_zwBZ-pFjMmah-in71Z_kqTmogNhDsPjpXrJow5g=",
-            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-            "https://media.istockphoto.com/id/847321716/fr/photo/macro-a-tir%C3%A9-de-l%C3%A9cran-de-lordinateur-avec-la-barre-dadresse-de-http-et-navigateur-web.webp?b=1&s=612x612&w=0&k=20&c=E8X_zwBZ-pFjMmah-in71Z_kqTmogNhDsPjpXrJow5g=",
-            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-            "https://media.istockphoto.com/id/847321716/fr/photo/macro-a-tir%C3%A9-de-l%C3%A9cran-de-lordinateur-avec-la-barre-dadresse-de-http-et-navigateur-web.webp?b=1&s=612x612&w=0&k=20&c=E8X_zwBZ-pFjMmah-in71Z_kqTmogNhDsPjpXrJow5g=",
-            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-            "https://media.istockphoto.com/id/847321716/fr/photo/macro-a-tir%C3%A9-de-l%C3%A9cran-de-lordinateur-avec-la-barre-dadresse-de-http-et-navigateur-web.webp?b=1&s=612x612&w=0&k=20&c=E8X_zwBZ-pFjMmah-in71Z_kqTmogNhDsPjpXrJow5g=",
-            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc=",
-            "https://media.istockphoto.com/id/847321716/fr/photo/macro-a-tir%C3%A9-de-l%C3%A9cran-de-lordinateur-avec-la-barre-dadresse-de-http-et-navigateur-web.webp?b=1&s=612x612&w=0&k=20&c=E8X_zwBZ-pFjMmah-in71Z_kqTmogNhDsPjpXrJow5g=",
-            "https://media.istockphoto.com/id/503426092/fr/photo/page-web-%C3%A0.webp?b=1&s=612x612&w=0&k=20&c=qMRopRsx51jygWENCJSbV5VtIXBaeEUsuIx44dsEuKc="
-        )
         binding.rvFavoritesMovies.apply {
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-            adapter = favoritesAdapter
+                adapter = favoritesAdapter
             try {
-                favoritesAdapter.differ.submitList(list)
+                viewModel.favoriteMovies.observe(requireActivity()){
+                    if (it.isEmpty()){
+                        binding.rvFavoritesMovies.visibility = View.GONE
+                        binding.seeAllFavorite.visibility = View.GONE
+                        binding.emptyFavoriteTv.visibility = View.VISIBLE
+                    }else{
+                        binding.rvFavoritesMovies.visibility = View.VISIBLE
+                        binding.seeAllFavorite.visibility = View.VISIBLE
+                        binding.emptyFavoriteTv.visibility = View.GONE
+                        val list = mutableListOf<String>()
+                        for(element in it){
+                            list.add(element.movieImg)
+                        }
+                        favoritesAdapter.differ.submitList(list)
+                    }
+
+                }
             } catch (ex: Exception) {
                 Toast.makeText(requireContext(), ex.message, Toast.LENGTH_SHORT).show()
             }

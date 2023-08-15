@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.moviesapp.databinding.RowFavoriteMoviesBinding
-import com.example.moviesapp.model.FavoriteData
+import com.example.moviesapp.model.favorite.FavoriteData
 
 class FavoriteAdapter : RecyclerView.Adapter<FavoriteAdapter.ViewHolder>() {
     inner class ViewHolder(var binding: RowFavoriteMoviesBinding): RecyclerView.ViewHolder(binding.root)
@@ -56,6 +56,12 @@ class FavoriteAdapter : RecyclerView.Adapter<FavoriteAdapter.ViewHolder>() {
                 }
             }
 
+            root.setOnLongClickListener {
+                onLongItemCLickListener?.let {
+                    it(list)
+                }
+                true
+            }
         }
 
 
@@ -67,6 +73,11 @@ class FavoriteAdapter : RecyclerView.Adapter<FavoriteAdapter.ViewHolder>() {
 
     fun setOnItemClickListener(listener : ((FavoriteData)-> Unit)){
         onItemClickListener = listener
+    }
+
+    private var onLongItemCLickListener : ((FavoriteData)-> Unit)? = null
+    fun setOnLongItemClickListener (listener:((FavoriteData)->Unit)){
+        onLongItemCLickListener = listener
     }
 
 }

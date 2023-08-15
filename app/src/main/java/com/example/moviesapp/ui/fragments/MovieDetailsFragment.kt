@@ -1,6 +1,12 @@
 package com.example.moviesapp.ui.fragments
 
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,22 +17,28 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
+import com.example.moviesapp.R
 import com.example.moviesapp.adapter.UpcomingAdapter
 import com.example.moviesapp.databinding.FragmentMovieDetailsBinding
+import com.example.moviesapp.model.favorite.FavoriteData
 import com.example.moviesapp.ui.activities.MainActivity
 import com.example.moviesapp.viewModel.MoviesViewModel
 
 
 class MovieDetailsFragment : Fragment() {
 
-    private lateinit var binding : FragmentMovieDetailsBinding
-    lateinit var recommendedAdapter : UpcomingAdapter
+    private lateinit var binding: FragmentMovieDetailsBinding
+    lateinit var recommendedAdapter: UpcomingAdapter
     private val movieDetailsFragmentArgs: MovieDetailsFragmentArgs by navArgs()
+    private var typeOfData = ""
     lateinit var viewModel: MoviesViewModel
+    var isFavorite = false
+    var isWatched = false
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentMovieDetailsBinding.inflate(layoutInflater)
         return binding.root
@@ -37,43 +49,161 @@ class MovieDetailsFragment : Fragment() {
 
         viewModel = (activity as MainActivity).viewModel
 
-      //  setupUpcomingRv()
-
+        setupUpcomingRv()
         retrieveMovieData()
+
 
         binding.backBtn.setOnClickListener {
             findNavController().popBackStack()
         }
+
+        recommendedAdapter.setOnItemClickListener { movieImgUrl ->
+            changeMoviesFromRecommended(movieImgUrl)
+        }
+
+        binding.seeAllRecommended.setOnClickListener {
+            val data = Bundle().apply {
+                putString("dataType","Top")
+            }
+            findNavController().navigate(R.id.action_movieDetailsFragment_to_moviesCategoryFragment,data)
+        }
+
+        binding.heartCv.setOnClickListener {
+            setMovieAsFavorite()
+        }
+        isFavorite = if (checkIfIsFavorite()){
+            binding.heartImg.setImageResource(R.drawable.ic_red_heart)
+            true
+        }else{
+            binding.heartImg.setImageResource(R.drawable.ic_heart)
+            false
+        }
+
+        binding.addToWatchedCv.setOnClickListener {
+            setMovieAsWatched()
+        }
+        isWatched = if (checkIfIsWatched()){
+            binding.addToWatchedImg.setImageResource(R.drawable.ic_done)
+            true
+        }else{
+            binding.addToWatchedImg.setImageResource(R.drawable.ic_add)
+            false
+        }
+
+        binding.shareBtn.setOnClickListener {
+            val bitmap = (binding.movieSmallImg.drawable as BitmapDrawable).bitmap
+            val path = MediaStore.Images.Media.insertImage(requireActivity().contentResolver, bitmap, "${binding.movieName}", null)
+            val uri = Uri.parse(path)
+
+            val shareIntent = Intent(Intent.ACTION_SEND)
+            shareIntent.type = "image/*"
+
+// Set the text first
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "Name: ${binding.movieName.text}\nDescription: ${binding.moviesDescription.text}")
+
+// Set the image
+            shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+
+// Start the chooser intent
+            startActivity(Intent.createChooser(shareIntent, "Share Movie"))
+
+
+        }
+
+
     }
 
+    private fun checkIfIsWatched(): Boolean {
+        val currentList = viewModel.recentlyWatched.value ?: mutableListOf()
+        var done = false
+        for (i in currentList) {
+            Glide.with(requireContext()).asBitmap().load(i).into(
+                object : CustomTarget<Bitmap>(){
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: Transition<in Bitmap>?
+                    ) {
+                        val imageViewDrawable = binding.movieSmallImg.drawable
+                        if(imageViewDrawable is BitmapDrawable){
+                            val imageViewBitmap = imageViewDrawable.bitmap
+                            if (resource.sameAs(imageViewBitmap)) {
+                                done = true
+                            } else {
+                                Log.d("MovieDetailsFragment","$resource  != $imageViewBitmap" )
+                            }
+                        }
+                    }
+                    override fun onLoadCleared(placeholder: Drawable?) {
+                        Toast.makeText(requireContext(), "Error occurred ... Please try again and check you connection", Toast.LENGTH_SHORT).show()
+                        findNavController().popBackStack()
+                    }
 
-    private fun setupUpcomingRv(){
+                }
+            )
+
+            if (done){
+                return true
+            }
+
+        }
+        return false
+    }
+
+    private fun checkIfIsFavorite() : Boolean{
+        val currentList = viewModel.favoriteMovies.value ?: mutableListOf()
+        for (i in currentList) {
+            if (i.movieName == binding.movieName.text.toString() && i.movieDescription == binding.moviesDescription.text.toString() && i.movieGenre == binding.movieGenre.text.split(
+                    "/"
+                )
+            ) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun changeMoviesFromRecommended(movieImgUrl: String) {
+        viewModel.top100Movies.observe(requireActivity()) {
+            Log.d("MovieDetailsFragment", it.size.toString())
+            for (element in it) {
+                if (element.image == movieImgUrl) {
+                    val data = Bundle().apply {
+                        putSerializable("movieTopData", element)
+                    }
+                    Log.d("MovieDetailsFragment", element.toString())
+                    findNavController().navigate(R.id.action_movieDetailsFragment_self, data)
+                    break
+                }
+            }
+        }
+    }
+
+    private fun setupUpcomingRv() {
         recommendedAdapter = UpcomingAdapter()
 
-        // todo : not tested yet
         binding.rvRecommendedMovies.apply {
-            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL , false)
+            layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             adapter = recommendedAdapter
             try {
-                viewModel.top100Movies.observe(requireActivity()){
+                viewModel.top100Movies.observe(requireActivity()) {
                     val list = arrayListOf<String>()
-                    for (i in 40 until 55 ){
+                    for (i in 40 until 55) {
                         list.add(it[i].image)
                     }
                     recommendedAdapter.differ.submitList(list)
                 }
 
-            }catch (ex : Exception){
+            } catch (ex: Exception) {
                 Toast.makeText(requireContext(), ex.message, Toast.LENGTH_SHORT).show()
             }
 
         }
     }
 
+    private fun retrieveMovieData() {
 
-    private fun retrieveMovieData(){
-
-        if (movieDetailsFragmentArgs.movieTopData != null){
+        if (movieDetailsFragmentArgs.movieTopData != null) {
             movieDetailsFragmentArgs.movieTopData?.let {
                 try {
                     Glide.with(requireContext()).load(it.image).into(binding.movieBigImg)
@@ -90,12 +220,17 @@ class MovieDetailsFragment : Fragment() {
                         }
                         binding.movieGenre.text = genre
                     }
-                }catch (ex : Exception){
-                    Log.d("MovieDetailsFragment",ex.message.toString())
-                    Toast.makeText(requireContext(), "sorry we can't retrieve this data\nplease try again later", Toast.LENGTH_SHORT).show()
+                    typeOfData = "Top"
+                } catch (ex: Exception) {
+                    Log.d("MovieDetailsFragment", ex.message.toString())
+                    Toast.makeText(
+                        requireContext(),
+                        "sorry we can't retrieve this data\nplease try again later",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
-        }else if (movieDetailsFragmentArgs.movieUpcData != null){
+        } else if (movieDetailsFragmentArgs.movieUpcData != null) {
             movieDetailsFragmentArgs.movieUpcData?.let {
                 try {
                     Glide.with(requireContext()).load(it.imageModel.url).into(binding.movieBigImg)
@@ -112,14 +247,207 @@ class MovieDetailsFragment : Fragment() {
                         }
                         binding.movieGenre.text = genre
                     }
-                }catch (ex : Exception){
-                    Log.d("MovieDetailsFragment",ex.message.toString())
-                    Toast.makeText(requireContext(), "sorry we can't retrieve this data\nplease try again later", Toast.LENGTH_SHORT).show()
+                    typeOfData = "Upcoming"
+                } catch (ex: Exception) {
+                    Log.d("MovieDetailsFragment", ex.message.toString())
+                    Toast.makeText(
+                        requireContext(),
+                        "sorry we can't retrieve this data\nplease try again later",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
-        }else{
-            Log.d("MovieDetailsFragment","there is no data")
+        } else if (movieDetailsFragmentArgs.movieFavoriteData != null) {
+            movieDetailsFragmentArgs.movieFavoriteData?.let {
+                try {
+                    binding.heartImg.setImageResource(R.drawable.ic_red_heart)
+                    isFavorite = true
+                    Glide.with(requireContext()).load(it.movieImg).into(binding.movieBigImg)
+                    Glide.with(requireContext()).load(it.movieImg).into(binding.movieSmallImg)
+                    binding.movieName.text = it.movieName
+                    binding.moviesDescription.text = it.movieDescription
+                    if (it.movieGenre.isNotEmpty()) {
+                        var genre = ""
+                        for (i in 0 until it.movieGenre.size) {
+                            if (i > 0) {
+                                genre += "/"
+                            }
+                            genre += it.movieGenre[i]
+                        }
+                        binding.movieGenre.text = genre
+                    }
+                    typeOfData = "Favorite"
+                } catch (ex: Exception) {
+                    Log.d("MovieDetailsFragment", ex.message.toString())
+                    Toast.makeText(
+                        requireContext(),
+                        "sorry we can't retrieve this data\nplease try again later",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        } else {
+            movieDetailsFragmentArgs.movieOfCategory?.let {
+                try {
+                    Glide.with(requireContext()).load(it.poster_path).into(binding.movieBigImg)
+                    Glide.with(requireContext()).load(it.poster_path).into(binding.movieSmallImg)
+                    binding.moviesDescription.text = it.overview
+                    typeOfData = "Category"
+                } catch (ex: Exception) {
+                    Log.d("MovieDetailsFragment", ex.message.toString())
+                    Toast.makeText(
+                        requireContext(),
+                        "sorry we can't retrieve this data\nplease try again later",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         }
+    }
+
+    private fun setMovieAsFavorite() {
+        isFavorite = !isFavorite
+        val currentList = viewModel.favoriteMovies.value ?: mutableListOf()
+        if (isFavorite) {
+            binding.heartImg.setImageResource(R.drawable.ic_red_heart)
+            if (typeOfData == "Top") {
+                movieDetailsFragmentArgs.movieTopData!!.apply {
+                    try {
+                        currentList.add(FavoriteData(
+                            this.image, this.title, this.description, this.genre, this.rating
+                        ))
+                        viewModel.favoriteMovies.postValue(currentList)
+
+                    } catch (ex: Exception) {
+                        Log.d("MovieDetailsFragment", ex.message.toString())
+                    }
+
+                }
+            } else if (typeOfData == "Upcoming") {
+                movieDetailsFragmentArgs.movieUpcData!!.apply {
+                    try {
+                        currentList.add(
+                            FavoriteData(
+                                this.imageModel.url,
+                                this.titleText,
+                                this.imageModel.caption,
+                                this.genres as ArrayList,
+                                "not Published yet"
+                            )
+                        )
+
+                    } catch (ex: Exception) {
+                        Log.d("MovieDetailsFragment", ex.message.toString())
+                    }
+
+                }
+            } else {
+                movieDetailsFragmentArgs.movieOfCategory!!.apply {
+                    try {
+                        currentList.add(
+                            FavoriteData(
+                                this.poster_path,
+                                this.title,
+                                this.overview,
+                                arrayListOf(binding.movieGenre.text.toString()),
+                                this.vote_average
+                            )
+                        )
+
+
+                    } catch (ex: Exception) {
+                        Log.d("MovieDetailsFragment", ex.message.toString())
+                    }
+
+                }
+            }
+
+        } else {
+            binding.heartImg.setImageResource(R.drawable.ic_heart)
+            for (i in currentList) {
+                if (i.movieName == binding.movieName.text.toString() && i.movieDescription == binding.moviesDescription.text.toString() && i.movieGenre == binding.movieGenre.text.split(
+                        "/"
+                    )
+                ) {
+                    currentList.remove(i)
+                    break
+                }
+            }
+        }
+        viewModel.favoriteMovies.postValue(currentList)
+    }
+
+    private fun setMovieAsWatched() {
+        isWatched = !isWatched
+        val currentList = viewModel.recentlyWatched.value ?: mutableListOf()
+        if(isWatched){
+            binding.addToWatchedImg.setImageResource(R.drawable.ic_done)
+            if (typeOfData == "Top") {
+                movieDetailsFragmentArgs.movieTopData!!.apply {
+                    try {
+                        currentList.add(this.image)
+
+                    } catch (ex: Exception) {
+                        Log.d("MovieDetailsFragment", ex.message.toString())
+                    }
+
+                }
+            } else if (typeOfData == "Upcoming") {
+                movieDetailsFragmentArgs.movieUpcData!!.apply {
+                    try {
+                        currentList.add(this.imageModel.url)
+                    } catch (ex: Exception) {
+                        Log.d("MovieDetailsFragment", ex.message.toString())
+                    }
+
+                }
+            } else {
+                movieDetailsFragmentArgs.movieOfCategory!!.apply {
+                    try {
+                        currentList.add(this.poster_path)
+                    } catch (ex: Exception) {
+                        Log.d("MovieDetailsFragment", ex.message.toString())
+                    }
+
+                }
+            }
+        } else {
+            binding.addToWatchedImg.setImageResource(R.drawable.ic_add)
+            for (i in currentList) {
+                var done = false
+                Glide.with(requireContext()).asBitmap().load(i).into(
+                    object : CustomTarget<Bitmap>(){
+                        override fun onResourceReady(
+                            resource: Bitmap,
+                            transition: Transition<in Bitmap>?
+                        ) {
+                            val imageViewDrawable = binding.movieSmallImg.drawable
+                            if(imageViewDrawable is BitmapDrawable){
+                                val imageViewBitmap = imageViewDrawable.bitmap
+                                if (resource.sameAs(imageViewBitmap)) {
+                                    currentList.remove(i)
+                                    done = true
+                                    Log.d("MovieDetailsFragment","$i removed  :: done !!" )
+                                } else {
+                                    Log.d("MovieDetailsFragment","$resource  != $imageViewBitmap" )
+                                }
+                            }
+                        }
+
+                        override fun onLoadCleared(placeholder: Drawable?) {
+                            binding.addToWatchedImg.setImageResource(R.drawable.ic_done)
+                            isWatched = true
+                            Toast.makeText(requireContext(), "failed to delete from Recently watched please try again", Toast.LENGTH_SHORT).show()
+                        }
+
+                    }
+                )
+                if (done){
+                    break
+                }
+            }
+        }
+        viewModel.recentlyWatched.postValue(currentList)
 
     }
 

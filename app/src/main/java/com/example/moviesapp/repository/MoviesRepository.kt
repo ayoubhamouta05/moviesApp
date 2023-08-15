@@ -9,4 +9,6 @@ class MoviesRepository () {
 
     suspend fun getTopMovies() = RetrofitInstance.topMoviesApi.getTop100Movies()
 
+    suspend fun getMoviesWithCategory(categoryId : Int) = RetrofitInstance.categoryApi.getMoviesWithCategory(categoryId)
+
 }

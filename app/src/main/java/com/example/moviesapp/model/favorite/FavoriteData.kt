@@ -1,4 +1,6 @@
-package com.example.moviesapp.model
+package com.example.moviesapp.model.favorite
+
+import java.io.Serializable
 
 data class FavoriteData(
     var movieImg: String,
@@ -6,4 +8,4 @@ data class FavoriteData(
     var movieDescription: String?,
     var movieGenre: ArrayList<String>,
     var movieRate: String
-)
+) : Serializable

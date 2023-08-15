@@ -12,7 +12,7 @@ object RetrofitInstance {
     }
 
     val moviesApi by lazy {
-        retrofitMovies.create(MoviesAPI::class.java)
+        retrofitMovies.create(UpcomingMoviesAPI::class.java)
     }
 
     private val retrofitTopMovies by lazy {
@@ -24,6 +24,17 @@ object RetrofitInstance {
 
     val topMoviesApi by lazy {
         retrofitTopMovies.create(TopMoviesAPI::class.java)
+    }
+
+    private val retrofitCategory by lazy{
+        Retrofit.Builder()
+            .baseUrl("https://advanced-movie-search.p.rapidapi.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    val categoryApi by lazy {
+        retrofitCategory.create(CategoryAPI::class.java)
     }
 
 }

@@ -14,6 +14,11 @@ import com.example.moviesapp.adapter.UpcomingAdapter
 import com.example.moviesapp.databinding.FragmentHomeBinding
 import com.example.moviesapp.ui.activities.MainActivity
 import com.example.moviesapp.viewModel.MoviesViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 
 class HomeFragment : Fragment() {
@@ -21,6 +26,9 @@ class HomeFragment : Fragment() {
     lateinit var upcomingAdapter: UpcomingAdapter
     private lateinit var topMovieAdapter: TopMovieAdapter
     private lateinit var viewModel: MoviesViewModel
+
+    private var db = FirebaseDatabase.getInstance()
+    private var auth = FirebaseAuth.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -34,30 +42,34 @@ class HomeFragment : Fragment() {
 
         viewModel = (activity as MainActivity).viewModel
 
-        viewModel.loadingUpcomingProgressBar.observe(requireActivity()){
+        viewModel.loadingUpcomingProgressBar.observe(requireActivity()) {
             if (it)
                 binding.upcomingProgressBar.visibility = View.VISIBLE
             else
                 binding.upcomingProgressBar.visibility = View.GONE
         }
-        viewModel.loadingTopProgressBar.observe(requireActivity()){
+        viewModel.loadingTopProgressBar.observe(requireActivity()) {
             if (it)
                 binding.topProgressBar.visibility = View.VISIBLE
             else
                 binding.topProgressBar.visibility = View.GONE
         }
+        binding.helloTv.text = retrieveUserName()
 
         setupUpcomingRv()
         setupTopMovieRv()
 
-        upcomingAdapter.setOnItemClickListener {upcomingMovieImg->
-            viewModel.upcomingMovies.observe(requireActivity()){
-                for(i in it){
-                    if(i.imageModel.url == upcomingMovieImg) {
+        upcomingAdapter.setOnItemClickListener { upcomingMovieImg ->
+            viewModel.upcomingMovies.observe(requireActivity()) {
+                for (i in it) {
+                    if (i.imageModel.url == upcomingMovieImg) {
                         val data = Bundle().apply {
                             putSerializable("movieUpcData", i)
                         }
-                        findNavController().navigate(R.id.action_homeFragment_to_movieDetailsFragment,data)
+                        findNavController().navigate(
+                            R.id.action_homeFragment_to_movieDetailsFragment,
+                            data
+                        )
                         break
                     }
                 }
@@ -67,28 +79,54 @@ class HomeFragment : Fragment() {
         topMovieAdapter.setOnItemClickListener {
             val data = Bundle().apply {
                 putSerializable(
-                    "movieTopData",it
+                    "movieTopData", it
                 )
             }
-            findNavController().navigate(R.id.action_homeFragment_to_movieDetailsFragment , data)
+            findNavController().navigate(R.id.action_homeFragment_to_movieDetailsFragment, data)
         }
 
         binding.seeAllUpcomingMovie.setOnClickListener {
 
             val bundle = Bundle().apply {
-                putString("dataType","Upcoming")
+                putString("dataType", "Upcoming")
             }
-            findNavController().navigate(R.id.action_homeFragment_to_moviesCategoryFragment,bundle)
+            findNavController().navigate(R.id.action_homeFragment_to_moviesCategoryFragment, bundle)
 
         }
 
         binding.seeAllTopMovies.setOnClickListener {
             val bundle = Bundle().apply {
-                putString("dataType","Top")
+                putString("dataType", "Top")
             }
-            findNavController().navigate(R.id.action_homeFragment_to_moviesCategoryFragment,bundle)
+            findNavController().navigate(R.id.action_homeFragment_to_moviesCategoryFragment, bundle)
         }
 
+    }
+
+
+    private fun retrieveUserName() : String{
+        var name  = ""
+        val reference =
+            db.getReference("Users/${auth.currentUser!!.email!!.replace(".com", "")}")
+        reference.child("firstName")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val firstName = snapshot.getValue(String::class.java)
+                    if (firstName != null) {
+                        name = "Hello $firstName"
+                    }
+                    else{
+                        retrieveUserName()
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    retrieveUserName()
+                }
+            }
+
+            )
+        return name
     }
 
     private fun setupUpcomingRv() {

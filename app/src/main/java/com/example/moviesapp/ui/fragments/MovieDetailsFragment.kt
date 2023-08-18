@@ -369,7 +369,6 @@ class MovieDetailsFragment : Fragment() {
                     } catch (ex: Exception) {
                         Log.d("MovieDetailsFragment", ex.message.toString())
                     }
-
                 }
             } else if (typeOfData == "Upcoming") {
                 movieDetailsFragmentArgs.movieUpcData!!.apply {
@@ -378,7 +377,6 @@ class MovieDetailsFragment : Fragment() {
                     } catch (ex: Exception) {
                         Log.d("MovieDetailsFragment", ex.message.toString())
                     }
-
                 }
             } else {
                 movieDetailsFragmentArgs.movieOfCategory!!.apply {
@@ -387,7 +385,6 @@ class MovieDetailsFragment : Fragment() {
                     } catch (ex: Exception) {
                         Log.d("MovieDetailsFragment", ex.message.toString())
                     }
-
                 }
             }
         } else {
@@ -398,40 +395,6 @@ class MovieDetailsFragment : Fragment() {
                     currentList.remove(i.image)
                 }
             }
-
-//            for (i in currentList) {
-//                var done = false
-//                Glide.with(requireContext()).asBitmap().load(i).into(
-//                    object : CustomTarget<Bitmap>(){
-//                        override fun onResourceReady(
-//                            resource: Bitmap,
-//                            transition: Transition<in Bitmap>?
-//                        ) {
-//                            val imageViewDrawable = binding.movieSmallImg.drawable
-//                            if(imageViewDrawable is BitmapDrawable){
-//                                val imageViewBitmap = imageViewDrawable.bitmap
-//                                if (resource.sameAs(imageViewBitmap)) {
-//                                    currentList.remove(i)
-//                                    done = true
-//                                    Log.d("MovieDetailsFragment","$i removed  :: done !!" )
-//                                } else {
-//                                    Log.d("MovieDetailsFragment","$resource  != $imageViewBitmap" )
-//                                }
-//                            }
-//                        }
-//
-//                        override fun onLoadCleared(placeholder: Drawable?) {
-//                            binding.addToWatchedImg.setImageResource(R.drawable.ic_done)
-//                            isWatched = true
-//                            Toast.makeText(requireContext(), "failed to delete from Recently watched please try again", Toast.LENGTH_SHORT).show()
-//                        }
-//
-//                    }
-//                )
-//                if (done){
-//                    break
-//                }
-//            }
         }
         viewModel.recentlyWatched.postValue(currentList)
 

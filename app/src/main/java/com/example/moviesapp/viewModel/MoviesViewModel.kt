@@ -10,12 +10,19 @@ import com.example.moviesapp.model.movieOfCategory.Result
 import com.example.moviesapp.model.topMovies.TopMoviesData
 import com.example.moviesapp.model.upcomingmovies.Entry
 import com.example.moviesapp.repository.MoviesRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.launch
 
 class MoviesViewModel(
     app: Application,
     private val moviesRepo: MoviesRepository
 ) : AndroidViewModel(app) {
+    var auth = FirebaseAuth.getInstance()
+    var db = FirebaseDatabase.getInstance()
 
     var upcomingMovies = MutableLiveData<List<Entry>>()
 
@@ -129,6 +136,29 @@ class MoviesViewModel(
             loadingCategoryProgressBar.postValue(false)
         }
     }
+
+    fun getRecentlyWatched(){
+        val currentUser = auth.currentUser
+        val reference = db.getReference("Recently")
+        reference.child(currentUser?.email!!.replace(".com","")).addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
+
+    }
+
+    fun setRecentlyWatched(movie : String , list : MutableList<String>){
+        list.add(movie)
+        recentlyWatched.postValue(list)
+    }
+
+
 
 
 }

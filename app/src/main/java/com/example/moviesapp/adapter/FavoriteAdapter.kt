@@ -10,9 +10,10 @@ import com.example.moviesapp.databinding.RowFavoriteMoviesBinding
 import com.example.moviesapp.model.favorite.FavoriteData
 
 class FavoriteAdapter : RecyclerView.Adapter<FavoriteAdapter.ViewHolder>() {
-    inner class ViewHolder(var binding: RowFavoriteMoviesBinding): RecyclerView.ViewHolder(binding.root)
+    inner class ViewHolder(var binding: RowFavoriteMoviesBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
-    private var differCallback = object : DiffUtil.ItemCallback<FavoriteData>(){
+    private var differCallback = object : DiffUtil.ItemCallback<FavoriteData>() {
         override fun areItemsTheSame(oldItem: FavoriteData, newItem: FavoriteData): Boolean {
             return oldItem.movieName == newItem.movieName && oldItem.movieImg == newItem.movieImg
         }
@@ -21,7 +22,7 @@ class FavoriteAdapter : RecyclerView.Adapter<FavoriteAdapter.ViewHolder>() {
             return oldItem == newItem
         }
     }
-    var differ = AsyncListDiffer(this,differCallback)
+    var differ = AsyncListDiffer(this, differCallback)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavoriteAdapter.ViewHolder {
         return ViewHolder(
@@ -41,9 +42,9 @@ class FavoriteAdapter : RecyclerView.Adapter<FavoriteAdapter.ViewHolder>() {
             movieTitle.text = list.movieName
             movieRate.text = list.movieRate
             var genre = ""
-            for(i in 0 until list.movieGenre.size){
-                if (i>0){
-                    genre+="/"
+            for (i in 0 until list.movieGenre.size) {
+                if (i > 0) {
+                    genre += "/"
                 }
                 genre += list.movieGenre[i]
             }
@@ -69,14 +70,14 @@ class FavoriteAdapter : RecyclerView.Adapter<FavoriteAdapter.ViewHolder>() {
 
     override fun getItemCount(): Int = differ.currentList.size
 
-    private var onItemClickListener : ((FavoriteData)-> Unit)?=null
+    private var onItemClickListener: ((FavoriteData) -> Unit)? = null
 
-    fun setOnItemClickListener(listener : ((FavoriteData)-> Unit)){
+    fun setOnItemClickListener(listener: ((FavoriteData) -> Unit)) {
         onItemClickListener = listener
     }
 
-    private var onLongItemCLickListener : ((FavoriteData)-> Unit)? = null
-    fun setOnLongItemClickListener (listener:((FavoriteData)->Unit)){
+    private var onLongItemCLickListener: ((FavoriteData) -> Unit)? = null
+    fun setOnLongItemClickListener(listener: ((FavoriteData) -> Unit)) {
         onLongItemCLickListener = listener
     }
 

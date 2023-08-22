@@ -19,7 +19,7 @@ import com.example.moviesapp.viewModel.MoviesViewModel
 class FavouriteFragment : Fragment() {
     private lateinit var binding: FragmentFavouriteBinding
     private lateinit var favoriteAdapter: FavoriteAdapter
-    lateinit var viewModel : MoviesViewModel
+    lateinit var viewModel: MoviesViewModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -35,9 +35,12 @@ class FavouriteFragment : Fragment() {
 
         favoriteAdapter.setOnItemClickListener {
             val data = Bundle().apply {
-                putSerializable("movieFavoriteData",it)
+                putSerializable("movieFavoriteData", it)
             }
-            findNavController().navigate(R.id.action_favouriteFragment_to_movieDetailsFragment,data)
+            findNavController().navigate(
+                R.id.action_favouriteFragment_to_movieDetailsFragment,
+                data
+            )
         }
         binding.backBtn.setOnClickListener {
             findNavController().popBackStack()
@@ -53,23 +56,29 @@ class FavouriteFragment : Fragment() {
         binding.rvFavorites.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = favoriteAdapter
-            viewModel.favoriteMovies.observe(requireActivity()){
+            viewModel.favoriteMovies.observe(requireActivity()) {
                 favoriteAdapter.differ.submitList(it)
             }
         }
     }
-    private fun setupDeleteOption(favoriteData : FavoriteData){
-        val myDialog =AlertDialog.Builder(requireContext())
+
+    private fun setupDeleteOption(favoriteData: FavoriteData) {
+        val myDialog = AlertDialog.Builder(requireContext())
         myDialog.setMessage("Do You Delete This Movie From Favorite List ?")
         myDialog.setCancelable(true)
-        myDialog.setPositiveButton("Cancel") {dialog,_->
+        myDialog.setPositiveButton("Cancel") { dialog, _ ->
             dialog.dismiss()
         }
 
-        myDialog.setNegativeButton("Delete") {dialog,_->
-            val currentList = viewModel.favoriteMovies.value ?: mutableListOf()
-            currentList.remove(favoriteData)
-            viewModel.favoriteMovies.postValue(currentList)
+        myDialog.setNegativeButton("Delete") { dialog, _ ->
+//            val currentList = viewModel.favoriteMovies.value ?: mutableListOf()
+//            currentList.remove(favoriteData)
+//            viewModel.favoriteMovies.postValue(currentList)
+            viewModel.deleteMovieFromFavorite(
+                favoriteData.movieName,
+                favoriteData.movieDescription!!,
+                favoriteData.movieGenre
+            )
             dialog.dismiss()
         }
         myDialog.create()

@@ -37,9 +37,12 @@ class CategoryFragment : Fragment() {
 
             // todo : add fragment to show the list of all movie of that category name
             val data = Bundle().apply {
-                putString("dataType",it)
+                putString("dataType", it)
             }
-            findNavController().navigate(R.id.action_categoryFragment_to_moviesCategoryFragment,data)
+            findNavController().navigate(
+                R.id.action_categoryFragment_to_moviesCategoryFragment,
+                data
+            )
         }
         binding.backBtn.setOnClickListener {
             findNavController().popBackStack()

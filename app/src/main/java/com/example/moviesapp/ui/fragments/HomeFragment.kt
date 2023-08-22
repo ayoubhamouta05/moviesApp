@@ -1,11 +1,11 @@
 package com.example.moviesapp.ui.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.moviesapp.R
@@ -42,6 +42,9 @@ class HomeFragment : Fragment() {
 
         viewModel = (activity as MainActivity).viewModel
 
+
+        retrieveUserName()
+
         viewModel.loadingUpcomingProgressBar.observe(requireActivity()) {
             if (it)
                 binding.upcomingProgressBar.visibility = View.VISIBLE
@@ -54,7 +57,6 @@ class HomeFragment : Fragment() {
             else
                 binding.topProgressBar.visibility = View.GONE
         }
-        binding.helloTv.text = retrieveUserName()
 
         setupUpcomingRv()
         setupTopMovieRv()
@@ -75,7 +77,6 @@ class HomeFragment : Fragment() {
                 }
             }
         }
-
         topMovieAdapter.setOnItemClickListener {
             val data = Bundle().apply {
                 putSerializable(
@@ -100,33 +101,29 @@ class HomeFragment : Fragment() {
             }
             findNavController().navigate(R.id.action_homeFragment_to_moviesCategoryFragment, bundle)
         }
-
     }
 
+    private fun retrieveUserName() {
+        val currentUser = auth.currentUser
+        val reference = db.getReference("Users")
 
-    private fun retrieveUserName() : String{
-        var name  = ""
-        val reference =
-            db.getReference("Users/${auth.currentUser!!.email!!.replace(".com", "")}")
-        reference.child("firstName")
+        reference.child(currentUser!!.email!!.replace(".com", ""))
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val firstName = snapshot.getValue(String::class.java)
-                    if (firstName != null) {
-                        name = "Hello $firstName"
-                    }
-                    else{
-                        retrieveUserName()
+                    if (snapshot.exists()) {
+                        // Retrieve the values from the dataSnapshot
+                        snapshot.child("firstName").getValue(String::class.java)?.let {
+                            binding.helloTv.text = "Hello $it"
+                        }
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    retrieveUserName()
+                    TODO("Not yet implemented")
                 }
-            }
+            })
 
-            )
-        return name
+
     }
 
     private fun setupUpcomingRv() {

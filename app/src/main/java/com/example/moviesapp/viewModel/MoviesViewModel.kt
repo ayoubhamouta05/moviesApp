@@ -41,7 +41,10 @@ class MoviesViewModel(
     init {
         getUpcomingMovies()
         getTop100Movies()
+        getFavoriteMoviesOFUser()
+        getWatchedMoviesOFUser()
     }
+
     private fun getUpcomingMovies() = viewModelScope.launch {
 
         try {
@@ -73,7 +76,6 @@ class MoviesViewModel(
             val response = moviesRepo.getTopMovies()
             if (response.isSuccessful) {
                 top100Movies.postValue(response.body())
-                Log.d("TopMovies", response.body()!!.size.toString())
                 loadingTopProgressBar.postValue(false)
             } else {
                 //todo : handel the failed response
@@ -137,28 +139,172 @@ class MoviesViewModel(
         }
     }
 
-    fun getRecentlyWatched(){
-        val currentUser = auth.currentUser
-        val reference = db.getReference("Recently")
-        reference.child(currentUser?.email!!.replace(".com","")).addValueEventListener(object : ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
+    // get the movies and set it all in the favoriteMovies Value LiveData
+    private fun getFavoriteMoviesOFUser() {
+        val reference = db.getReference("Movies/Favorite")
+        reference.child(auth.currentUser?.email!!.replace(".com", ""))
+            .addListenerForSingleValueEvent(object :
+                ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val list = mutableListOf<FavoriteData>()
+                        for (childSnapshot in snapshot.children) {
+                            val data = childSnapshot.getValue(FavoriteData::class.java)
+                            data?.let {
+                                list.add(data)
+                            }
+                        }
+                        favoriteMovies.postValue(list)
+                    }
+                }
 
+                override fun onCancelled(error: DatabaseError) {
 
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-        })
+                }
+            })
 
     }
 
-    fun setRecentlyWatched(movie : String , list : MutableList<String>){
-        list.add(movie)
-        recentlyWatched.postValue(list)
+    fun setMoviesAsFavorite(movie: FavoriteData?) {
+
+        val currentList = favoriteMovies.value ?: mutableListOf()
+        movie?.let {
+            val reference =
+                db.getReference("Movies/Favorite/${auth.currentUser?.email!!.replace(".com", "")}")
+
+            // Generate a unique key for the new movie
+            val newKey = reference.push().key
+
+            newKey?.let { newKey ->
+                reference.child(newKey).setValue(movie)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            currentList.add(movie)
+                        } else {
+                            // Handle the error if the operation fails
+                        }
+                    }
+            }
+
+            favoriteMovies.postValue(currentList)
+        }
+
     }
 
+    fun deleteMovieFromFavorite(
+        name: String, description: String, genres: List<String>
+    ) {
+        val reference = db.getReference("Movies/Favorite")
+        val list = favoriteMovies.value ?: mutableListOf()
+        reference.child(auth.currentUser?.email!!.replace(".com", ""))
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    for (childSnapshot in snapshot.children) {
+                        val data = childSnapshot.getValue(FavoriteData::class.java)
+                        data?.let {
+                            if (it.movieGenre == genres && it.movieDescription == description && it.movieName == name) {
+                                childSnapshot.ref.removeValue().addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        val itemToRemove = list.find { favorite -> favorite == it }
+                                        itemToRemove?.let { item ->
+                                            list.remove(item)
+                                            favoriteMovies.postValue(list)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
 
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+
+                }
+            })
+
+
+    }
+
+    private fun getWatchedMoviesOFUser() {
+        val reference = db.getReference("Movies/Recently")
+        reference.child(auth.currentUser?.email!!.replace(".com", ""))
+            .addListenerForSingleValueEvent(object :
+                ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val list = mutableListOf<String>()
+                        for (childSnapshot in snapshot.children) {
+                            val data = childSnapshot.getValue(String::class.java)
+                            data?.let {
+                                list.add(data)
+                            }
+                        }
+                        recentlyWatched.postValue(list)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+
+                }
+            })
+    }
+
+    fun setMoviesAsWatched(imageUrl: String) {
+        val currentList = recentlyWatched.value ?: mutableListOf()
+
+        val reference =
+            db.getReference("Movies/Recently/${auth.currentUser?.email!!.replace(".com", "")}")
+
+        // Generate a unique key for the new movie
+        val newKey = reference.push().key
+
+        newKey?.let { newKey ->
+            reference.child(newKey).setValue(imageUrl)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        currentList.add(imageUrl)
+                    } else {
+                        // Handle the error if the operation fails
+                    }
+                }
+        }
+        recentlyWatched.postValue(currentList)
+
+    }
+
+    fun deleteMoviesFromRecently(name: String, description: String) {
+        val reference = db.getReference("Movies/Recently")
+        val currentList = recentlyWatched.value ?: mutableListOf()
+        reference.child(auth.currentUser?.email!!.replace(".com", ""))
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    for (childSnapshot in snapshot.children) {
+                        val data = childSnapshot.getValue(String::class.java)
+                        data?.let { imageUrl ->
+                            val list = top100Movies.value ?: mutableListOf()
+                            for (i in list) {
+                                if (i.title == name && i.description == description) {
+                                    if (imageUrl == i.image) {
+                                        childSnapshot.ref.removeValue().addOnCompleteListener {
+                                            if (it.isSuccessful) {
+                                                currentList.remove(i.image)
+                                                recentlyWatched.postValue(currentList)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+
+                }
+            })
+
+    }
 
 
 }

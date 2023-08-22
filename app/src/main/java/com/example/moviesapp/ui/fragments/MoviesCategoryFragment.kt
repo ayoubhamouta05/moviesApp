@@ -1,12 +1,10 @@
 package com.example.moviesapp.ui.fragments
 
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
@@ -37,15 +35,13 @@ class MoviesCategoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         viewModel = (activity as MainActivity).viewModel
 
-        viewModel.loadingCategoryProgressBar.observe(requireActivity()){
-            if(it)
+        viewModel.loadingCategoryProgressBar.observe(requireActivity()) {
+            if (it)
                 binding.progressBar.visibility = View.VISIBLE
             else
                 binding.progressBar.visibility = View.GONE
-
         }
 
         viewModel.getMoviesWithCategory(args.dataType)
@@ -85,17 +81,23 @@ class MoviesCategoryFragment : Fragment() {
         categoryListAdapter.setOnCategoryItemClickListener {
             val data = Bundle().apply {
                 putSerializable(
-                    "movieOfCategory",it
+                    "movieOfCategory", it
                 )
             }
-            findNavController().navigate(R.id.action_moviesCategoryFragment_to_movieDetailsFragment,data)
+            findNavController().navigate(
+                R.id.action_moviesCategoryFragment_to_movieDetailsFragment,
+                data
+            )
         }
 
         categoryListAdapter.setOnRecentlyItemClickListener {
             val data = Bundle().apply {
-                putSerializable("movieTopData",it)
+                putSerializable("movieTopData", it)
             }
-            findNavController().navigate(R.id.action_moviesCategoryFragment_to_movieDetailsFragment,data)
+            findNavController().navigate(
+                R.id.action_moviesCategoryFragment_to_movieDetailsFragment,
+                data
+            )
         }
 
     }
@@ -115,23 +117,21 @@ class MoviesCategoryFragment : Fragment() {
                     categoryListAdapter.differTop.submitList(it)
                 }
 
-            } else if (dataType == "watched"){
+            } else if (dataType == "watched") {
 
                 val currentListTop = viewModel.top100Movies.value ?: mutableListOf()
                 val currentListRecently = viewModel.recentlyWatched.value ?: mutableListOf()
                 val dataList = mutableListOf<TopMoviesData>()
-                for (recently in currentListRecently){
-                    for (topMovie in currentListTop){
-
-                        if (topMovie.image == recently){
+                for (recently in currentListRecently) {
+                    for (topMovie in currentListTop) {
+                        if (topMovie.image == recently) {
                             dataList.add(topMovie)
-                            Log.d("ayoub","${topMovie.image}  == $recently" )
                         }
                     }
                 }
                 categoryListAdapter.differRecently.submitList(dataList)
-             }else{
-                viewModel.moviesOfCategory.observe(requireActivity()){
+            } else {
+                viewModel.moviesOfCategory.observe(requireActivity()) {
                     categoryListAdapter.differCategory.submitList(it)
                 }
             }

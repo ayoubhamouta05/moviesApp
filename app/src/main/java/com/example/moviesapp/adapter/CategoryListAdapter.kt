@@ -1,6 +1,5 @@
 package com.example.moviesapp.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,74 +12,77 @@ import com.example.moviesapp.model.movieOfCategory.Result
 import com.example.moviesapp.model.topMovies.TopMoviesData
 import com.example.moviesapp.model.upcomingmovies.Entry
 
-class CategoryListAdapter(var dataType : String) : RecyclerView.Adapter<CategoryListAdapter.ViewHolder>() {
-    inner class ViewHolder(var binding: RowMoviesOfCategoryBinding) : RecyclerView.ViewHolder(binding.root)
+class CategoryListAdapter(var dataType: String) :
+    RecyclerView.Adapter<CategoryListAdapter.ViewHolder>() {
+    inner class ViewHolder(var binding: RowMoviesOfCategoryBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryListAdapter.ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): CategoryListAdapter.ViewHolder {
         return ViewHolder(
             RowMoviesOfCategoryBinding.inflate(
-            LayoutInflater.from(
-                parent.context),
-            parent,
-            false
-        ))
+                LayoutInflater.from(
+                    parent.context
+                ),
+                parent,
+                false
+            )
+        )
     }
 
-    private var differCallbackUpcoming = object : DiffUtil.ItemCallback<Entry>(){
+    private var differCallbackUpcoming = object : DiffUtil.ItemCallback<Entry>() {
         override fun areItemsTheSame(oldItem: Entry, newItem: Entry): Boolean {
-            return  oldItem.titleText == newItem.titleText
+            return oldItem.titleText == newItem.titleText
         }
 
         override fun areContentsTheSame(oldItem: Entry, newItem: Entry): Boolean {
             return oldItem == newItem
         }
     }
-    var differUpcoming = AsyncListDiffer(this,differCallbackUpcoming)
+    var differUpcoming = AsyncListDiffer(this, differCallbackUpcoming)
 
 
-    private var differCallbackTop = object : DiffUtil.ItemCallback<TopMoviesData>(){
+    private var differCallbackTop = object : DiffUtil.ItemCallback<TopMoviesData>() {
         override fun areItemsTheSame(oldItem: TopMoviesData, newItem: TopMoviesData): Boolean {
-            return  oldItem.title == newItem.title
+            return oldItem.title == newItem.title
         }
 
         override fun areContentsTheSame(oldItem: TopMoviesData, newItem: TopMoviesData): Boolean {
             return oldItem == newItem
         }
     }
-    var differTop = AsyncListDiffer(this,differCallbackTop)
+    var differTop = AsyncListDiffer(this, differCallbackTop)
 
 
-
-    private var differCallbackCategory = object : DiffUtil.ItemCallback<Result>(){
+    private var differCallbackCategory = object : DiffUtil.ItemCallback<Result>() {
         override fun areItemsTheSame(oldItem: Result, newItem: Result): Boolean {
-            return  oldItem.title == newItem.title
+            return oldItem.title == newItem.title
         }
 
         override fun areContentsTheSame(oldItem: Result, newItem: Result): Boolean {
             return oldItem == newItem
         }
     }
-    var differCategory = AsyncListDiffer(this,differCallbackCategory)
+    var differCategory = AsyncListDiffer(this, differCallbackCategory)
 
 
-
-    private var differCallbackRecently = object : DiffUtil.ItemCallback<TopMoviesData>(){
+    private var differCallbackRecently = object : DiffUtil.ItemCallback<TopMoviesData>() {
         override fun areItemsTheSame(oldItem: TopMoviesData, newItem: TopMoviesData): Boolean {
-            return  oldItem.title == newItem.title
+            return oldItem.title == newItem.title
         }
 
         override fun areContentsTheSame(oldItem: TopMoviesData, newItem: TopMoviesData): Boolean {
             return oldItem == newItem
         }
     }
-    var differRecently = AsyncListDiffer(this,differCallbackRecently)
-
+    var differRecently = AsyncListDiffer(this, differCallbackRecently)
 
 
     override fun onBindViewHolder(holder: CategoryListAdapter.ViewHolder, position: Int) {
 
-        if (dataType == "Upcoming"){
-            Log.d("recyclerView",dataType)
+        if (dataType == "Upcoming") {
             val list = differUpcoming.currentList[position]
             holder.binding.apply {
                 rateStar.visibility = View.GONE
@@ -89,9 +91,9 @@ class CategoryListAdapter(var dataType : String) : RecyclerView.Adapter<Category
                 Glide.with(root).load(list.imageModel.url).into(movieImg)
                 movieName.text = list.titleText
                 var genre = ""
-                for(i in 0 until list.genres.size){
-                    if (i>0){
-                        genre+="/"
+                for (i in 0 until list.genres.size) {
+                    if (i > 0) {
+                        genre += "/"
                     }
                     genre += list.genres[i]
                 }
@@ -102,15 +104,15 @@ class CategoryListAdapter(var dataType : String) : RecyclerView.Adapter<Category
                     }
                 }
             }
-        }else if(dataType == "Top" ){
+        } else if (dataType == "Top") {
             val list = differTop.currentList[position]
             holder.binding.apply {
                 Glide.with(root).load(list.image).into(movieImg)
                 movieName.text = list.title
                 var genre = ""
-                for(i in 0 until list.genre.size){
-                    if (i>0){
-                        genre+="/"
+                for (i in 0 until list.genre.size) {
+                    if (i > 0) {
+                        genre += "/"
                     }
                     genre += list.genre[i]
                 }
@@ -121,16 +123,16 @@ class CategoryListAdapter(var dataType : String) : RecyclerView.Adapter<Category
                     }
                 }
             }
-        }else if (dataType == "watched"){
+        } else if (dataType == "watched") {
             val list = differRecently.currentList[position]
-            Log.d("ayoub",dataType)
+
             holder.binding.apply {
                 Glide.with(root).load(list.image).into(movieImg)
                 movieName.text = list.title
                 var genre = ""
-                for(i in 0 until list.genre.size){
-                    if (i>0){
-                        genre+="/"
+                for (i in 0 until list.genre.size) {
+                    if (i > 0) {
+                        genre += "/"
                     }
                     genre += list.genre[i]
                 }
@@ -141,8 +143,7 @@ class CategoryListAdapter(var dataType : String) : RecyclerView.Adapter<Category
                     }
                 }
             }
-        }
-        else{
+        } else {
             val list = differCategory.currentList[position]
             holder.binding.apply {
                 Glide.with(root).load(list.poster_path).into(movieImg)
@@ -160,31 +161,34 @@ class CategoryListAdapter(var dataType : String) : RecyclerView.Adapter<Category
     }
 
     override fun getItemCount(): Int {
-        return if(dataType == "Upcoming"){
+        return if (dataType == "Upcoming") {
             differUpcoming.currentList.size
-        }else if (dataType == "Top"){
+        } else if (dataType == "Top") {
             differTop.currentList.size
-        }else if(dataType == "watched"){
+        } else if (dataType == "watched") {
             differRecently.currentList.size
-        }else{
+        } else {
             differCategory.currentList.size
         }
     }
 
-    private var onUpcomingItemClickListener : ((Entry) -> Unit)? = null
-    fun setOnUpcomingItemClickListener(listener : ((Entry) -> Unit)){
+    private var onUpcomingItemClickListener: ((Entry) -> Unit)? = null
+    fun setOnUpcomingItemClickListener(listener: ((Entry) -> Unit)) {
         onUpcomingItemClickListener = listener
     }
-    private var onTopItemClickListener : ((TopMoviesData) -> Unit)? = null
-    fun setOnTopItemClickListener(listener : ((TopMoviesData) -> Unit)){
+
+    private var onTopItemClickListener: ((TopMoviesData) -> Unit)? = null
+    fun setOnTopItemClickListener(listener: ((TopMoviesData) -> Unit)) {
         onTopItemClickListener = listener
     }
-    private var onCategoryItemClickListener : ((Result) -> Unit)? = null
-    fun setOnCategoryItemClickListener(listener : ((Result) -> Unit)){
+
+    private var onCategoryItemClickListener: ((Result) -> Unit)? = null
+    fun setOnCategoryItemClickListener(listener: ((Result) -> Unit)) {
         onCategoryItemClickListener = listener
     }
-    private var onRecentlyItemClickListener : ((TopMoviesData) -> Unit)? = null
-    fun setOnRecentlyItemClickListener(listener : ((TopMoviesData) -> Unit)){
+
+    private var onRecentlyItemClickListener: ((TopMoviesData) -> Unit)? = null
+    fun setOnRecentlyItemClickListener(listener: ((TopMoviesData) -> Unit)) {
         onRecentlyItemClickListener = listener
     }
 }

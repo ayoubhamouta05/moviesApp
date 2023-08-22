@@ -48,8 +48,8 @@ class CategoryAdapter : RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
 
     override fun getItemCount(): Int = differ.currentList.size
 
-    private var onItemClickListener : ((String) -> Unit)? = null
-    fun setOnItemClickListener(listener : ((String) -> Unit)){
+    private var onItemClickListener: ((String) -> Unit)? = null
+    fun setOnItemClickListener(listener: ((String) -> Unit)) {
         onItemClickListener = listener
     }
 }

@@ -1,24 +1,17 @@
 package com.example.moviesapp.ui.fragments
 
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import com.example.moviesapp.R
 import com.example.moviesapp.adapter.UpcomingAdapter
 import com.example.moviesapp.databinding.FragmentMovieDetailsBinding
@@ -63,18 +56,21 @@ class MovieDetailsFragment : Fragment() {
 
         binding.seeAllRecommended.setOnClickListener {
             val data = Bundle().apply {
-                putString("dataType","Top")
+                putString("dataType", "Top")
             }
-            findNavController().navigate(R.id.action_movieDetailsFragment_to_moviesCategoryFragment,data)
+            findNavController().navigate(
+                R.id.action_movieDetailsFragment_to_moviesCategoryFragment,
+                data
+            )
         }
 
         binding.heartCv.setOnClickListener {
             setMovieAsFavorite()
         }
-        isFavorite = if (checkIfIsFavorite()){
+        isFavorite = if (checkIfIsFavorite()) {
             binding.heartImg.setImageResource(R.drawable.ic_red_heart)
             true
-        }else{
+        } else {
             binding.heartImg.setImageResource(R.drawable.ic_heart)
             false
         }
@@ -82,10 +78,10 @@ class MovieDetailsFragment : Fragment() {
         binding.addToWatchedCv.setOnClickListener {
             setMovieAsWatched()
         }
-        isWatched = if (checkIfIsWatched()){
+        isWatched = if (checkIfIsWatched()) {
             binding.addToWatchedImg.setImageResource(R.drawable.ic_done)
             true
-        }else{
+        } else {
             binding.addToWatchedImg.setImageResource(R.drawable.ic_add)
             false
         }
@@ -95,23 +91,30 @@ class MovieDetailsFragment : Fragment() {
         }
 
         binding.downloadBtn.setOnClickListener {
-            Toast.makeText(requireContext(), "This feature is not currently available", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "This feature is not currently available",
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
 
     }
 
-    private fun shareMovie(){
+    private fun shareMovie() {
         var textInSmall = ""
-        for (i in binding.movieName.text.toString()){
-            textInSmall+=i.lowercaseChar()
+        for (i in binding.movieName.text.toString()) {
+            textInSmall += i.lowercaseChar()
         }
 
         val intent = Intent(Intent.ACTION_SEND)
         intent.apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_SUBJECT, "Watch This Amazing Movie")
-            putExtra(Intent.EXTRA_TEXT, "https://watch.plex.tv/movie/${textInSmall.replace(" ","-")}" )
+            putExtra(
+                Intent.EXTRA_TEXT,
+                "https://watch.plex.tv/movie/${textInSmall.replace(" ", "-")}"
+            )
         }
 
         startActivity(intent)
@@ -120,16 +123,16 @@ class MovieDetailsFragment : Fragment() {
     private fun checkIfIsWatched(): Boolean {
         val currentList = viewModel.recentlyWatched.value ?: mutableListOf()
         val currentListMovie = viewModel.top100Movies.value ?: mutableListOf()
-        for (i in currentListMovie){
-                if(binding.movieName.text == i.title && binding.moviesDescription.text == i.description ){
-                    if(currentList.contains(i.image))
-                        return true
+        for (i in currentListMovie) {
+            if (binding.movieName.text == i.title && binding.moviesDescription.text == i.description) {
+                if (currentList.contains(i.image))
+                    return true
             }
         }
         return false
     }
 
-    private fun checkIfIsFavorite() : Boolean{
+    private fun checkIfIsFavorite(): Boolean {
         val currentList = viewModel.favoriteMovies.value ?: mutableListOf()
         for (i in currentList) {
             if (i.movieName == binding.movieName.text.toString() && i.movieDescription == binding.moviesDescription.text.toString() && i.movieGenre == binding.movieGenre.text.split(
@@ -144,13 +147,12 @@ class MovieDetailsFragment : Fragment() {
 
     private fun changeMoviesFromRecommended(movieImgUrl: String) {
         viewModel.top100Movies.observe(requireActivity()) {
-            Log.d("MovieDetailsFragment", it.size.toString())
+
             for (element in it) {
                 if (element.image == movieImgUrl) {
                     val data = Bundle().apply {
                         putSerializable("movieTopData", element)
                     }
-                    Log.d("MovieDetailsFragment", element.toString())
                     findNavController().navigate(R.id.action_movieDetailsFragment_self, data)
                     break
                 }
@@ -182,24 +184,23 @@ class MovieDetailsFragment : Fragment() {
     }
 
     private fun retrieveMovieData() {
+        var movieSmallImg = ""
+        var movieBigImg = ""
+        var movieName = ""
+        var movieDescription = ""
+        var genres = arrayListOf<String>()
+
 
         if (movieDetailsFragmentArgs.movieTopData != null) {
-            movieDetailsFragmentArgs.movieTopData?.let {
+
+            movieDetailsFragmentArgs.movieTopData!!.let {
                 try {
-                    Glide.with(requireContext()).load(it.image).into(binding.movieBigImg)
-                    Glide.with(requireContext()).load(it.image).into(binding.movieSmallImg)
-                    binding.movieName.text = it.title
-                    binding.moviesDescription.text = it.description
-                    if (it.genre.isNotEmpty()) {
-                        var genre = ""
-                        for (i in 0 until it.genre.size) {
-                            if (i > 0) {
-                                genre += "/"
-                            }
-                            genre += it.genre[i]
-                        }
-                        binding.movieGenre.text = genre
-                    }
+                    movieBigImg = it.image
+                    movieSmallImg = it.image
+                    movieName = it.title
+                    movieDescription = it.description
+                    genres = it.genre
+
                     typeOfData = "Top"
                 } catch (ex: Exception) {
                     Log.d("MovieDetailsFragment", ex.message.toString())
@@ -211,22 +212,15 @@ class MovieDetailsFragment : Fragment() {
                 }
             }
         } else if (movieDetailsFragmentArgs.movieUpcData != null) {
-            movieDetailsFragmentArgs.movieUpcData?.let {
+            movieDetailsFragmentArgs.movieUpcData!!.let {
                 try {
-                    Glide.with(requireContext()).load(it.imageModel.url).into(binding.movieBigImg)
-                    Glide.with(requireContext()).load(it.imageModel.url).into(binding.movieSmallImg)
-                    binding.movieName.text = it.titleText
-                    binding.moviesDescription.text = it.imageModel.caption
-                    if (it.genres.isNotEmpty()) {
-                        var genre = ""
-                        for (i in 0 until it.genres.size) {
-                            if (i > 0) {
-                                genre += "/"
-                            }
-                            genre += it.genres[i]
-                        }
-                        binding.movieGenre.text = genre
-                    }
+
+                    movieBigImg = it.imageModel.url
+                    movieSmallImg = it.imageModel.url
+                    movieName = it.titleText
+                    movieDescription = it.imageModel.caption!!
+                    genres = it.genres as ArrayList<String>
+
                     typeOfData = "Upcoming"
                 } catch (ex: Exception) {
                     Log.d("MovieDetailsFragment", ex.message.toString())
@@ -238,24 +232,17 @@ class MovieDetailsFragment : Fragment() {
                 }
             }
         } else if (movieDetailsFragmentArgs.movieFavoriteData != null) {
-            movieDetailsFragmentArgs.movieFavoriteData?.let {
+            movieDetailsFragmentArgs.movieFavoriteData!!.let {
                 try {
                     binding.heartImg.setImageResource(R.drawable.ic_red_heart)
                     isFavorite = true
-                    Glide.with(requireContext()).load(it.movieImg).into(binding.movieBigImg)
-                    Glide.with(requireContext()).load(it.movieImg).into(binding.movieSmallImg)
-                    binding.movieName.text = it.movieName
-                    binding.moviesDescription.text = it.movieDescription
-                    if (it.movieGenre.isNotEmpty()) {
-                        var genre = ""
-                        for (i in 0 until it.movieGenre.size) {
-                            if (i > 0) {
-                                genre += "/"
-                            }
-                            genre += it.movieGenre[i]
-                        }
-                        binding.movieGenre.text = genre
-                    }
+
+                    movieBigImg = it.movieImg
+                    movieSmallImg = it.movieImg
+                    movieName = it.movieName
+                    movieDescription = it.movieDescription!!
+                    genres = it.movieGenre
+
                     typeOfData = "Favorite"
                 } catch (ex: Exception) {
                     Log.d("MovieDetailsFragment", ex.message.toString())
@@ -266,12 +253,14 @@ class MovieDetailsFragment : Fragment() {
                     ).show()
                 }
             }
+
         } else {
-            movieDetailsFragmentArgs.movieOfCategory?.let {
+            movieDetailsFragmentArgs.movieOfCategory!!.let {
                 try {
-                    Glide.with(requireContext()).load(it.poster_path).into(binding.movieBigImg)
-                    Glide.with(requireContext()).load(it.poster_path).into(binding.movieSmallImg)
-                    binding.moviesDescription.text = it.overview
+                    movieBigImg = it.poster_path
+                    movieSmallImg = it.poster_path
+                    movieDescription = it.overview
+
                     typeOfData = "Category"
                 } catch (ex: Exception) {
                     Log.d("MovieDetailsFragment", ex.message.toString())
@@ -283,20 +272,35 @@ class MovieDetailsFragment : Fragment() {
                 }
             }
         }
+        Glide.with(requireContext()).load(movieBigImg).into(binding.movieBigImg)
+        Glide.with(requireContext()).load(movieSmallImg).into(binding.movieSmallImg)
+        binding.movieName.text = movieName
+        binding.moviesDescription.text = movieDescription
+        if (genres.isNotEmpty()) {
+            var genre = ""
+            for (i in 0 until genres.size) {
+                if (i > 0) {
+                    genre += "/"
+                }
+                genre += genres[i]
+            }
+            binding.movieGenre.text = genre
+        }
     }
 
     private fun setMovieAsFavorite() {
         isFavorite = !isFavorite
-        val currentList = viewModel.favoriteMovies.value ?: mutableListOf()
+        var favoriteData = FavoriteData()
+
         if (isFavorite) {
             binding.heartImg.setImageResource(R.drawable.ic_red_heart)
             if (typeOfData == "Top") {
-                movieDetailsFragmentArgs.movieTopData!!.apply {
+                movieDetailsFragmentArgs.movieTopData?.apply {
                     try {
-                        currentList.add(FavoriteData(
+
+                        favoriteData = FavoriteData(
                             this.image, this.title, this.description, this.genre, this.rating
-                        ))
-                        viewModel.favoriteMovies.postValue(currentList)
+                        )
 
                     } catch (ex: Exception) {
                         Log.d("MovieDetailsFragment", ex.message.toString())
@@ -304,16 +308,14 @@ class MovieDetailsFragment : Fragment() {
 
                 }
             } else if (typeOfData == "Upcoming") {
-                movieDetailsFragmentArgs.movieUpcData!!.apply {
+                movieDetailsFragmentArgs.movieUpcData?.apply {
                     try {
-                        currentList.add(
-                            FavoriteData(
-                                this.imageModel.url,
-                                this.titleText,
-                                this.imageModel.caption,
-                                this.genres as ArrayList,
-                                "not Published yet"
-                            )
+                        favoriteData = FavoriteData(
+                            this.imageModel.url,
+                            this.titleText,
+                            this.imageModel.caption,
+                            this.genres as ArrayList,
+                            "not Published yet"
                         )
 
                     } catch (ex: Exception) {
@@ -322,19 +324,15 @@ class MovieDetailsFragment : Fragment() {
 
                 }
             } else {
-                movieDetailsFragmentArgs.movieOfCategory!!.apply {
+                movieDetailsFragmentArgs.movieOfCategory?.apply {
                     try {
-                        currentList.add(
-                            FavoriteData(
-                                this.poster_path,
-                                this.title,
-                                this.overview,
-                                arrayListOf(binding.movieGenre.text.toString()),
-                                this.vote_average
-                            )
+                        favoriteData = FavoriteData(
+                            this.poster_path,
+                            this.title,
+                            this.overview,
+                            arrayListOf(binding.movieGenre.text.toString()),
+                            this.vote_average
                         )
-
-
                     } catch (ex: Exception) {
                         Log.d("MovieDetailsFragment", ex.message.toString())
                     }
@@ -342,61 +340,63 @@ class MovieDetailsFragment : Fragment() {
                 }
             }
 
+            viewModel.setMoviesAsFavorite(favoriteData)
         } else {
             binding.heartImg.setImageResource(R.drawable.ic_heart)
-            for (i in currentList) {
-                if (i.movieName == binding.movieName.text.toString() && i.movieDescription == binding.moviesDescription.text.toString() && i.movieGenre == binding.movieGenre.text.split(
-                        "/"
-                    )
-                ) {
-                    currentList.remove(i)
-                    break
-                }
-            }
+
+            viewModel.deleteMovieFromFavorite(
+                binding.movieName.text.toString(),
+                binding.moviesDescription.text.toString(), binding.movieGenre.text.split(
+                    "/"
+                )
+            )
+
         }
-        viewModel.favoriteMovies.postValue(currentList)
     }
 
     private fun setMovieAsWatched() {
         isWatched = !isWatched
-        val currentList = viewModel.recentlyWatched.value ?: mutableListOf()
-        if(isWatched){
+
+        var imageUrl = ""
+        if (isWatched) {
             binding.addToWatchedImg.setImageResource(R.drawable.ic_done)
             if (typeOfData == "Top") {
-                movieDetailsFragmentArgs.movieTopData!!.apply {
+                movieDetailsFragmentArgs.movieTopData?.apply {
                     try {
-                        currentList.add(this.image)
+                        // currentList.add(this.image)
+                        imageUrl = this.image
                     } catch (ex: Exception) {
                         Log.d("MovieDetailsFragment", ex.message.toString())
                     }
                 }
             } else if (typeOfData == "Upcoming") {
-                movieDetailsFragmentArgs.movieUpcData!!.apply {
+                movieDetailsFragmentArgs.movieUpcData?.apply {
                     try {
-                        currentList.add(this.imageModel.url)
+                        //currentList.add(this.imageModel.url)
+                        imageUrl = this.imageModel.url
                     } catch (ex: Exception) {
                         Log.d("MovieDetailsFragment", ex.message.toString())
                     }
                 }
             } else {
-                movieDetailsFragmentArgs.movieOfCategory!!.apply {
+                movieDetailsFragmentArgs.movieOfCategory?.apply {
                     try {
-                        currentList.add(this.poster_path)
+                        //currentList.add(this.poster_path)
+                        imageUrl = this.poster_path
                     } catch (ex: Exception) {
                         Log.d("MovieDetailsFragment", ex.message.toString())
                     }
                 }
             }
+
+            viewModel.setMoviesAsWatched(imageUrl)
         } else {
             binding.addToWatchedImg.setImageResource(R.drawable.ic_add)
-            val currentListMovie = viewModel.top100Movies.value ?: mutableListOf()
-            for (i in currentListMovie){
-                if(binding.movieName.text == i.title && binding.moviesDescription.text == i.description ){
-                    currentList.remove(i.image)
-                }
-            }
+            viewModel.deleteMoviesFromRecently(
+                binding.movieName.text.toString(),
+                binding.moviesDescription.text.toString()
+            )
         }
-        viewModel.recentlyWatched.postValue(currentList)
 
     }
 

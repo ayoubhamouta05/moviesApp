@@ -21,12 +21,17 @@ import com.example.moviesapp.databinding.ActivityMainBinding
 import com.example.moviesapp.repository.MoviesRepository
 import com.example.moviesapp.viewModel.MoviesViewModel
 import com.example.moviesapp.viewModel.MoviesViewModelProvider
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     lateinit var navController: NavController
+    lateinit var viewModel: MoviesViewModel
 
-    lateinit var viewModel : MoviesViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +41,8 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val controller = window.insetsController
             controller?.hide(WindowInsets.Type.systemBars())
-            controller?.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller?.systemBarsBehavior =
+                WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         } else {
             // Fallback for devices before Android 11
             window.decorView.systemUiVisibility = (
@@ -46,24 +52,26 @@ class MainActivity : AppCompatActivity() {
                     )
         }
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.movies_navHost_Fragment) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.movies_navHost_Fragment) as NavHostFragment
         navController = navHostFragment.findNavController()
         binding.bottomNavigation.setupWithNavController(navController)
 
         val moviesRepository = MoviesRepository()
-        val viewModelFactory = MoviesViewModelProvider(application,moviesRepository)
+        val viewModelFactory = MoviesViewModelProvider(application, moviesRepository)
         viewModel = ViewModelProvider(this, viewModelFactory)[MoviesViewModel::class.java]
 
         setupBackButton(navHostFragment)
 
-        binding.bottomNavigation.setOnItemSelectedListener {menuItem->
+
+        binding.bottomNavigation.setOnItemSelectedListener { menuItem ->
             navController = navHostFragment.navController
             val currentDestination = navController.currentDestination?.id
 
-            if(menuItem.itemId == R.id.profileFragment){
+            if (menuItem.itemId == R.id.profileFragment) {
                 binding.bottomNavigation.setBackgroundResource(R.color.black)
                 menuItem.itemId.green
-            }else{
+            } else {
                 binding.bottomNavigation.setBackgroundResource(R.drawable._solid_bluegrey_40dp)
                 menuItem.itemId.green
             }
@@ -82,11 +90,12 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
-    private fun setupBackButton( navHostFragment : NavHostFragment) {
+    private fun setupBackButton(navHostFragment: NavHostFragment) {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             private var backPressedTimestamp: Long = 0
 
@@ -111,7 +120,7 @@ class MainActivity : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                }else{
+                } else {
                     navController.popBackStack()
                 }
 
@@ -120,7 +129,6 @@ class MainActivity : AppCompatActivity() {
         })
 
     }
-
 
 
 }

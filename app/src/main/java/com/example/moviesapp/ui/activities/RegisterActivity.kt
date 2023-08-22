@@ -1,16 +1,11 @@
 package com.example.moviesapp.ui.activities
 
 import android.content.Intent
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import com.example.moviesapp.R
+import androidx.appcompat.app.AppCompatActivity
 import com.example.moviesapp.databinding.ActivityRegisterBinding
 import com.example.moviesapp.model.user.UserData
 import com.google.firebase.auth.FirebaseAuth
@@ -27,14 +22,6 @@ class RegisterActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
 
-//        window.decorView.apply {
-//            // Hide both the navigation bar and the status bar.
-//            // SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
-//            // a general rule, you should design your app to hide the status bar whenever you
-//            // hide the navigation bar.
-//            systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
-//        }
-
         binding.signUpBtn.setOnClickListener {
             registerNewUser(
                 binding.firstNameEd.text.toString(),
@@ -45,7 +32,7 @@ class RegisterActivity : AppCompatActivity() {
             )
         }
         binding.backBtn.setOnClickListener {
-            startActivity(Intent(this,LoginActivity::class.java))
+            startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
 
@@ -88,13 +75,13 @@ class RegisterActivity : AppCompatActivity() {
                     dialog.dismiss()
                 }
                 alertDialog.show()
-            }else {
+            } else {
                 try {
                     auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
                                 val reference = db.getReference("Users")
-                                reference.child(email.replace(".com","")).setValue(
+                                reference.child(email.replace(".com", "")).setValue(
                                     UserData(
                                         firstName, lastName, email, password
                                     )
@@ -117,7 +104,7 @@ class RegisterActivity : AppCompatActivity() {
                                     Toast.LENGTH_SHORT
                                 )
                                     .show()
-                                Log.d("RegisterActivity",task.exception?.message.toString())
+
                             }
                         }
                 } catch (ex: Exception) {

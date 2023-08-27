@@ -81,6 +81,11 @@
         <action
             android:id="@+id/action_movieDetailsFragment_to_moviesCategoryFragment"
             app:destination="@id/moviesCategoryFragment" />
+        <argument
+            android:name="movieSearchData"
+            app:argType="com.example.moviesapp.model.search.Result"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/moviesCategoryFragment"

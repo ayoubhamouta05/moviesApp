@@ -9,10 +9,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.moviesapp.databinding.RowMoviesOfCategoryBinding
 import com.example.moviesapp.model.movieOfCategory.Result
+import com.example.moviesapp.model.search.SearchData
 import com.example.moviesapp.model.topMovies.TopMoviesData
 import com.example.moviesapp.model.upcomingmovies.Entry
 
-class CategoryListAdapter(var dataType: String) :
+class CategoryListAdapter(var dataType: String?) :
     RecyclerView.Adapter<CategoryListAdapter.ViewHolder>() {
     inner class ViewHolder(var binding: RowMoviesOfCategoryBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -79,6 +80,17 @@ class CategoryListAdapter(var dataType: String) :
     }
     var differRecently = AsyncListDiffer(this, differCallbackRecently)
 
+    private var differCallbackSearch = object : DiffUtil.ItemCallback<com.example.moviesapp.model.search.Result>() {
+        override fun areItemsTheSame(oldItem: com.example.moviesapp.model.search.Result, newItem: com.example.moviesapp.model.search.Result): Boolean {
+            return oldItem == newItem
+        }
+
+        override fun areContentsTheSame(oldItem: com.example.moviesapp.model.search.Result, newItem: com.example.moviesapp.model.search.Result): Boolean {
+            return oldItem == newItem
+        }
+    }
+    var differSearch = AsyncListDiffer(this, differCallbackSearch)
+
 
     override fun onBindViewHolder(holder: CategoryListAdapter.ViewHolder, position: Int) {
 
@@ -143,6 +155,19 @@ class CategoryListAdapter(var dataType: String) :
                     }
                 }
             }
+        } else if(dataType == "Search"){
+            val list = differSearch.currentList[position]
+            holder.binding.apply {
+                Glide.with(root).load(list.poster_path).into(movieImg)
+                movieName.text = list.title
+                movieRate.text = list.vote_average.toString()
+                movieGenre.text = "action/drama"
+                root.setOnClickListener {
+                    onSearchItemClickListener?.let {
+                        it(list)
+                    }
+                }
+            }
         } else {
             val list = differCategory.currentList[position]
             holder.binding.apply {
@@ -167,6 +192,8 @@ class CategoryListAdapter(var dataType: String) :
             differTop.currentList.size
         } else if (dataType == "watched") {
             differRecently.currentList.size
+        } else if(dataType == "Search"){
+            differSearch.currentList.size
         } else {
             differCategory.currentList.size
         }
@@ -190,5 +217,10 @@ class CategoryListAdapter(var dataType: String) :
     private var onRecentlyItemClickListener: ((TopMoviesData) -> Unit)? = null
     fun setOnRecentlyItemClickListener(listener: ((TopMoviesData) -> Unit)) {
         onRecentlyItemClickListener = listener
+    }
+
+    private var onSearchItemClickListener: ((com.example.moviesapp.model.search.Result) -> Unit)? = null
+    fun setOnSearchItemClickListener(listener: ((com.example.moviesapp.model.search.Result) -> Unit)) {
+        onSearchItemClickListener = listener
     }
 }

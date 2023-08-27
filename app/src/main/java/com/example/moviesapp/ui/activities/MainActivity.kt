@@ -68,14 +68,6 @@ class MainActivity : AppCompatActivity() {
             navController = navHostFragment.navController
             val currentDestination = navController.currentDestination?.id
 
-            if (menuItem.itemId == R.id.profileFragment) {
-                binding.bottomNavigation.setBackgroundResource(R.color.black)
-                menuItem.itemId.green
-            } else {
-                binding.bottomNavigation.setBackgroundResource(R.drawable._solid_bluegrey_40dp)
-                menuItem.itemId.green
-            }
-
             // Check if the selected item is different from the current destination
             if (currentDestination != menuItem.itemId) {
                 // Clear the back stack before navigating

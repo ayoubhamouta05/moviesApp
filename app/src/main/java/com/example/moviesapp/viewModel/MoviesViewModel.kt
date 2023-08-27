@@ -30,6 +30,8 @@ class MoviesViewModel(
 
     var moviesOfCategory = MutableLiveData<List<Result>>()
 
+    var moviesSearch = MutableLiveData<List<com.example.moviesapp.model.search.Result>>()
+
     var favoriteMovies = MutableLiveData(mutableListOf<FavoriteData>())
 
     var recentlyWatched = MutableLiveData(mutableListOf<String>())
@@ -139,6 +141,41 @@ class MoviesViewModel(
         }
     }
 
+    fun getSearchMovie(movieName: String, page: Int) = viewModelScope.launch {
+        try {
+            val response = moviesRepo.getSearchMovies(movieName, page)
+            Log.d("SearchMovies", "${response.body()}")
+            if (response.isSuccessful) {
+                val searchData = response.body()
+                if (searchData != null) {
+                    moviesSearch.postValue(searchData.results)
+                    Log.d("SearchMovies", "Results Size: ${searchData.results.size}")
+                } else {
+                    Log.d("SearchMovies", "Response body is null")
+                }
+            } else {
+                Log.d("SearchMovies", "Failed: ${response.errorBody()}")
+            }
+        } catch (ex: Exception) {
+            Log.d("SearchMovies", "Exception: ${ex.message}")
+        }
+    }
+
+
+    //    fun getSearchMovie (movieName: String  , page  : Int ) = viewModelScope.launch {
+//        try {
+//            val response = moviesRepo.getSearchMovies(movieName , page)
+//            if (response.isSuccessful){
+//                moviesSearch.postValue(response.body()!!.results)
+//                Log.d("SearchMovies", response.body()!!.results.size.toString())
+//            }else{
+//                Log.d("SearchMovies", "failed : ${response.errorBody()}")
+//            }
+//        }catch (ex: Exception){
+//            Log.d("SearchMovies", "exception : ${ex.message}")
+//        }
+//
+//    }
     // get the movies and set it all in the favoriteMovies Value LiveData
     private fun getFavoriteMoviesOFUser() {
         val reference = db.getReference("Movies/Favorite")
@@ -305,6 +342,9 @@ class MoviesViewModel(
             })
 
     }
+
+
+
 
 
 }

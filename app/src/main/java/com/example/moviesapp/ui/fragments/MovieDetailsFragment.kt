@@ -1,6 +1,7 @@
 package com.example.moviesapp.ui.fragments
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -89,15 +90,25 @@ class MovieDetailsFragment : Fragment() {
         binding.shareBtn.setOnClickListener {
             shareMovie()
         }
-
-        binding.downloadBtn.setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "This feature is not currently available",
-                Toast.LENGTH_SHORT
-            ).show()
+        binding.watchImg.setOnClickListener {
+            watchMovie()
         }
 
+        binding.downloadBtn.setOnClickListener {
+            Toast.makeText(requireContext(), "This Feature Is Not Available Right Now", Toast.LENGTH_SHORT).show()
+        }
+
+    }
+
+
+    private fun watchMovie(){
+        var textInSmall = ""
+        for (i in binding.movieName.text.toString()) {
+            textInSmall += i.lowercaseChar()
+        }
+        val webUrl = "https://watch.plex.tv/movie/${textInSmall.replace(" ", "-")}"
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(webUrl))
+        startActivity(intent)
 
     }
 
@@ -234,6 +245,7 @@ class MovieDetailsFragment : Fragment() {
         } else if (movieDetailsFragmentArgs.movieFavoriteData != null) {
             movieDetailsFragmentArgs.movieFavoriteData!!.let {
                 try {
+                    // if it come from favorite fragment it means that it was already liked
                     binding.heartImg.setImageResource(R.drawable.ic_red_heart)
                     isFavorite = true
 
@@ -254,7 +266,27 @@ class MovieDetailsFragment : Fragment() {
                 }
             }
 
-        } else {
+        } else if (movieDetailsFragmentArgs.movieSearchData != null) {
+            movieDetailsFragmentArgs.movieSearchData!!.let {
+                try {
+                    movieBigImg = it.backdrop_path
+                    movieSmallImg = it.poster_path
+                    movieName = it.title
+                    movieDescription = it.overview
+                    genres = arrayListOf("not defined")
+
+                    typeOfData = "Search"
+                } catch (ex: Exception) {
+                    Log.d("MovieDetailsFragment", ex.message.toString())
+                    Toast.makeText(
+                        requireContext(),
+                        "sorry we can't retrieve this data\nplease try again later",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+        }else {
             movieDetailsFragmentArgs.movieOfCategory!!.let {
                 try {
                     movieBigImg = it.poster_path
@@ -323,7 +355,23 @@ class MovieDetailsFragment : Fragment() {
                     }
 
                 }
-            } else {
+            } else if (typeOfData == "Search") {
+                movieDetailsFragmentArgs.movieSearchData?.apply {
+                    try {
+                        favoriteData = FavoriteData(
+                            this.poster_path,
+                            this.title,
+                            this.overview,
+                            arrayListOf("not defined"),
+                            this.vote_average.toString()
+                        )
+
+                    } catch (ex: Exception) {
+                        Log.d("MovieDetailsFragment", ex.message.toString())
+                    }
+
+                }
+            }else {
                 movieDetailsFragmentArgs.movieOfCategory?.apply {
                     try {
                         favoriteData = FavoriteData(
@@ -336,7 +384,6 @@ class MovieDetailsFragment : Fragment() {
                     } catch (ex: Exception) {
                         Log.d("MovieDetailsFragment", ex.message.toString())
                     }
-
                 }
             }
 
@@ -363,7 +410,6 @@ class MovieDetailsFragment : Fragment() {
             if (typeOfData == "Top") {
                 movieDetailsFragmentArgs.movieTopData?.apply {
                     try {
-                        // currentList.add(this.image)
                         imageUrl = this.image
                     } catch (ex: Exception) {
                         Log.d("MovieDetailsFragment", ex.message.toString())
@@ -372,16 +418,22 @@ class MovieDetailsFragment : Fragment() {
             } else if (typeOfData == "Upcoming") {
                 movieDetailsFragmentArgs.movieUpcData?.apply {
                     try {
-                        //currentList.add(this.imageModel.url)
                         imageUrl = this.imageModel.url
                     } catch (ex: Exception) {
                         Log.d("MovieDetailsFragment", ex.message.toString())
                     }
                 }
-            } else {
+            } else if (typeOfData == "Search") {
+                movieDetailsFragmentArgs.movieSearchData?.apply {
+                    try {
+                        imageUrl = this.poster_path
+                    } catch (ex: Exception) {
+                        Log.d("MovieDetailsFragment", ex.message.toString())
+                    }
+                }
+            }else {
                 movieDetailsFragmentArgs.movieOfCategory?.apply {
                     try {
-                        //currentList.add(this.poster_path)
                         imageUrl = this.poster_path
                     } catch (ex: Exception) {
                         Log.d("MovieDetailsFragment", ex.message.toString())

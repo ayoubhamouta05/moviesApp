@@ -13,59 +13,57 @@
         android:layout_height="wrap_content"
         android:layout_marginVertical="4dp"
         android:layout_marginStart="8dp"
-        android:text="Hello Alex"
-        android:textColor="@color/white"
+        android:text="Hello"
+        android:textColor="#FFEE9322"
         android:textSize="26sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+    <ImageView
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:src="@drawable/ic_movie"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintTop_toTopOf="@id/hello_tv"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="What to Watch ?"
-        android:textColor="@color/normal_text_color"
+        android:textColor="@color/white"
         app:layout_constraintStart_toStartOf="@+id/hello_tv"
         app:layout_constraintTop_toBottomOf="@+id/hello_tv" />
 
-    <SearchView
+
+    <EditText
         android:id="@+id/search_ed"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="45dp"
         android:layout_marginHorizontal="10dp"
-        android:queryHint="Search For Movies"
-        android:searchIcon="@drawable/ic_search"
-        android:queryBackground="@drawable/_solid_bluegrey_15dp"
-        android:background="@drawable/_solid_bluegrey_15dp"
+        android:background="@drawable/_solid_orange_15dp"
+        app:boxStrokeWidth="0dp"
+        android:hint="Search"
+        android:textColor="@color/black"
+        android:paddingHorizontal="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/hello_tv">
-    </SearchView>
+        app:layout_constraintTop_toBottomOf="@id/hello_tv" />
 
-<!--    <com.google.android.material.textfield.TextInputLayout-->
-<!--        android:id="@+id/search_lbl"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="45dp"-->
-<!--        android:layout_marginHorizontal="10dp"-->
-<!--        android:background="@drawable/_solid_bluegrey_15dp"-->
-<!--        app:boxStrokeWidth="0dp"-->
-<!--        app:startIconDrawable="@drawable/ic_search"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/hello_tv">-->
-<!--        <com.google.android.material.textfield.TextInputEditText-->
-<!--            android:id="@+id/search_ed"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:maxLines="2"-->
-<!--            android:textColor="@color/normal_text_color"-->
-<!--            android:paddingHorizontal="10dp"-->
-<!--            style="@style/ThemeOverlay.Material3.TextInputEditText"-->
-<!--            android:hint="Search For Movies"/>-->
-<!--    </com.google.android.material.textfield.TextInputLayout>-->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/search_rv"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:layout_marginVertical="16dp"
+        app:layout_constraintTop_toBottomOf="@id/search_ed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
     <ScrollView
+        android:id="@+id/movies_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginVertical="16dp"
@@ -73,6 +71,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

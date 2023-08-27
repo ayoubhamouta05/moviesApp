@@ -37,4 +37,15 @@ object RetrofitInstance {
         retrofitCategory.create(CategoryAPI::class.java)
     }
 
+    private val retrofitSearch by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://advanced-movie-search.p.rapidapi.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    val searchApi by lazy {
+        retrofitSearch.create(SearchApi::class.java)
+    }
+
 }

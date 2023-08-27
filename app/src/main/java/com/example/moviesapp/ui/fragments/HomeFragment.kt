@@ -5,10 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.moviesapp.R
+import com.example.moviesapp.adapter.CategoryListAdapter
 import com.example.moviesapp.adapter.TopMovieAdapter
 import com.example.moviesapp.adapter.UpcomingAdapter
 import com.example.moviesapp.databinding.FragmentHomeBinding
@@ -19,6 +22,10 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class HomeFragment : Fragment() {
@@ -26,6 +33,7 @@ class HomeFragment : Fragment() {
     lateinit var upcomingAdapter: UpcomingAdapter
     private lateinit var topMovieAdapter: TopMovieAdapter
     private lateinit var viewModel: MoviesViewModel
+    private lateinit var searchAdapter : CategoryListAdapter
 
     private var db = FirebaseDatabase.getInstance()
     private var auth = FirebaseAuth.getInstance()
@@ -44,6 +52,9 @@ class HomeFragment : Fragment() {
 
 
         retrieveUserName()
+
+
+        setupSearchOperation()
 
         viewModel.loadingUpcomingProgressBar.observe(requireActivity()) {
             if (it)
@@ -170,5 +181,41 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun setupSearchOperation(){
+        var job : Job? = null
+        binding.searchEd.addTextChangedListener {editable ->
+            job?.cancel()
+            job = MainScope().launch {
+                delay(500)
+                editable?.let {
+                    if(editable.toString().isNotEmpty()){
+                        binding.searchRv.visibility = View.VISIBLE
+                        binding.moviesLayout.visibility = View.GONE
+                        viewModel.getSearchMovie(editable.toString(),1)
+                    }else{
+                        binding.searchRv.visibility = View.GONE
+                        binding.moviesLayout.visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
+
+        searchAdapter = CategoryListAdapter("Search")
+        binding.searchRv.apply {
+            layoutManager = GridLayoutManager(requireContext(),2)
+            adapter = searchAdapter
+            viewModel.moviesSearch.observe(requireActivity()){
+                searchAdapter.differSearch.submitList(it)
+            }
+        }
+
+        searchAdapter.setOnSearchItemClickListener {
+            val data = Bundle().apply {
+                putSerializable("movieSearchData",it)
+            }
+            findNavController().navigate(R.id.action_homeFragment_to_movieDetailsFragment,data)
+        }
+
+    }
 
 }

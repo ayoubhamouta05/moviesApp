@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/_gradient_orange_20dp"
+    android:background="@drawable/_gradient_orange_reversed_20dp"
     tools:context=".ui.fragments.ProfileFragment">
 
     <androidx.cardview.widget.CardView
@@ -14,6 +14,7 @@
         android:layout_marginTop="20dp"
         android:backgroundTint="@color/transparent"
         app:cardCornerRadius="90dp"
+        android:elevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">

@@ -15,6 +15,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MoviesViewModel(
@@ -49,26 +50,59 @@ class MoviesViewModel(
 
     private fun getUpcomingMovies() = viewModelScope.launch {
 
-        try {
-            loadingUpcomingProgressBar.postValue(true)
-            val response = moviesRepo.getUpcomingMovies()
-            if (response.isSuccessful) {
-                upcomingMovies.postValue(response.body()?.let {
-                    it.message[0].entries
-                    //todo: if the entries list size is less than 5 pass to the message[1] and so on
-                })
+//        try {
+//            loadingUpcomingProgressBar.postValue(true)
+//            val response = moviesRepo.getUpcomingMovies()
+//            if (response.isSuccessful) {
+//                upcomingMovies.postValue(response.body()?.let {
+//                    it.message[0].entries
+//                    //todo: if the entries list size is less than 5 pass to the message[1] and so on
+//                })
+//
+//                loadingUpcomingProgressBar.postValue(false)
+//            } else {
+//                Log.d("UpcomingMovies", "failed : ${response.errorBody()}")
+//                // todo : handle the failed response
+//
+//                loadingUpcomingProgressBar.postValue(false)
+//            }
+//        } catch (ex: Exception) {
+//            Log.d("UpcomingMovies", "exception : ${ex.message}")
+//            loadingUpcomingProgressBar.postValue(false)
+//        }
+        var retryCount = 0
+        val maxRetries = 3 // Adjust as needed
+        var requestSucceeded = false
 
-                loadingUpcomingProgressBar.postValue(false)
-            } else {
-                Log.d("UpcomingMovies", "failed : ${response.errorBody()}")
-                // todo : handle the failed response
-
-                loadingUpcomingProgressBar.postValue(false)
+        while (retryCount < maxRetries && !requestSucceeded) {
+            try {
+                loadingUpcomingProgressBar.postValue(true)
+                val response = moviesRepo.getUpcomingMovies()
+                if (response.isSuccessful) {
+                    upcomingMovies.postValue(response.body()?.let {
+                        it.message[0].entries
+                    })
+                    loadingUpcomingProgressBar.postValue(false)
+                    requestSucceeded = true // Set the flag to true when the request succeeds
+                } else {
+                    Log.d("UpcomingMovies", "failed : ${response.errorBody()}")
+                }
+            } catch (ex: Exception) {
+                Log.d("UpcomingMovies", "exception : ${ex.message}")
             }
-        } catch (ex: Exception) {
-            Log.d("UpcomingMovies", "exception : ${ex.message}")
+
+            // Increment retry count and wait before the next retry (e.g., exponential backoff)
+            retryCount++
+            val delayMillis = 1000L * retryCount // Adjust delay time as needed
+            delay(delayMillis)
+        }
+
+        if (!requestSucceeded) {
+            // Handle the case when all retries have failed
             loadingUpcomingProgressBar.postValue(false)
         }
+
+
 
     }
 

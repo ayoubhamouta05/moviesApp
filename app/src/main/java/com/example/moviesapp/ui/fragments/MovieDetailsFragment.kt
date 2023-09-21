@@ -179,10 +179,11 @@ class MovieDetailsFragment : Fragment() {
                 LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             adapter = recommendedAdapter
             try {
-                viewModel.top100Movies.observe(requireActivity()) {
+                viewModel.top100Movies.observe(requireActivity()) { movies->
+                    val listMovies = movies.shuffled()
                     val list = arrayListOf<String>()
-                    for (i in 40 until 55) {
-                        list.add(it[i].image)
+                    for (i in 0 until 55) {
+                        list.add(listMovies[i].image)
                     }
                     recommendedAdapter.differ.submitList(list)
                 }
